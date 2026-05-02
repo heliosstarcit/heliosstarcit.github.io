@@ -1,37 +1,232 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>HELIOS — Join the Crew</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,300;0,400;0,500;1,300&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Iceland&family=Chakra+Petch:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&family=Barlow:ital,wght@0,300;1,300&family=Barlow+Condensed:wght@400;500;600&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --gold: #E8A020;
-      --gold-dim: #9B6A14;
-      --white: #F0EDE6;
-      --off-white: #C8C4BC;
-      --dark: #080B10;
-      --dark-mid: #0D1219;
-      --dark-panel: #111825;
-      --accent: #4AA8C8;
-      --accent-dim: #1E4A5C;
+      --gold:        #BA9953;
+      --gold-dim:    rgba(186,153,83,0.45);
+      --gold-faint:  rgba(186,153,83,0.14);
+      --gold-text:   rgba(186,153,83,0.7);
+      --teal:        #628BAE;
+      --teal-dim:    rgba(98,139,174,0.5);
+      --teal-faint:  rgba(98,139,174,0.1);
+      --bg:          #1A1C1E;
+      --card-bg:     #141618;
+      --body-text:   rgba(215,205,180,0.75);
+      --bright-text: rgba(215,205,180,0.92);
       --fs: 1;
     }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--body-text);
+      font-family: 'Barlow', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+    /* ── PAGE TRANSITION SYSTEM ── */
+    .page-view {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      overflow-y: auto;
+      transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.45s ease;
+      will-change: transform, opacity;
+      pointer-events: none;
+      opacity: 0;
+    }
+    .page-view.visible {
+      transform: translateX(0) !important;
+      opacity: 1;
+      pointer-events: auto;
+      z-index: 2;
+    }
+    .page-view.exit-left {
+      transform: translateX(-100%);
+      opacity: 0;
+      z-index: 1;
+    }
+    .page-view.exit-right {
+      transform: translateX(100%);
+      opacity: 0;
+      z-index: 1;
+    }
+    .page-view.enter-left {
+      transform: translateX(-100%);
+    }
+    .page-view.enter-right {
+      transform: translateX(100%);
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 60px;
+      z-index: 200;
+      background: rgba(26,28,30,0.92);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--gold-faint);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+    }
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .nav-left img {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+      transition: opacity 0.2s ease;
+    }
+    .nav-left:hover img { opacity: 0.8; }
+    .nav-name {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--gold);
+      letter-spacing: 0.12em;
+      white-space: nowrap;
+    }
+
+    .nav-tabs { display: none; }
+
+    .nav-tab {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      background: transparent;
+      border: 1px solid var(--gold-dim);
+      cursor: pointer;
+      padding: 0.4rem 1rem;
+      clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+      transition: background 0.2s ease, border-color 0.2s ease;
+      white-space: nowrap;
+    }
+    .nav-tab:hover {
+      background: rgba(186,153,83,0.08);
+      border-color: var(--gold);
+    }
+    .nav-tab.active {
+      background: rgba(186,153,83,0.12);
+      border-color: var(--gold);
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex-shrink: 0;
+    }
+
+    /* ── HAMBURGER ── */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0.25rem;
+      width: 28px;
+    }
+    .hamburger span {
+      display: block;
+      height: 1px;
+      background: var(--gold);
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+    /* Mobile menu drawer */
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      top: 60px; left: 0; right: 0;
+      background: rgba(20,22,24,0.97);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--gold-faint);
+      z-index: 199;
+      flex-direction: column;
+      padding: 1rem 0;
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu-tab {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      background: none;
+      border-left: none;
+      border-right: none;
+      border-bottom: none;
+      border-top: none;
+      cursor: pointer;
+      padding: 0.85rem 2rem;
+      text-align: left;
+      transition: color 0.2s ease, background 0.2s ease;
+    }
+    .mobile-menu-tab:hover, .mobile-menu-tab.active {
+      color: var(--gold);
+      background: rgba(186,153,83,0.05);
+    }
+    .mobile-menu-tab.join-tab {
+      color: var(--gold);
+      margin-top: 0.25rem;
+      padding-top: 0.85rem;
+      padding-bottom: 0.85rem;
+      border-top: 1px solid rgba(186,153,83,0.14);
+    }
+
+    /* ── BUTTONS ── */
+    .btn-angled {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--bg);
+      background: var(--gold);
+      border: none;
+      cursor: pointer;
+      padding: 1rem 3rem;
+      clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      transition: background 0.2s ease;
+    }
+    .btn-angled:hover { background: #caa96a; }
+    .nav-join { font-size: 0.72rem; padding: 0.55rem 1.4rem; clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%); }
 
     /* ── FONT SIZE SELECTOR ── */
     .fs-selector {
-      position: fixed;
-      top: 1.5rem;
-      right: 4.5rem;
-      z-index: 10;
       display: flex;
-      align-items: center;
-      gap: 0.5rem;
+      align-items: baseline;
+      gap: 0.4rem;
+      margin-right: 0.6rem;
     }
     .fs-btn {
       background: none;
@@ -40,580 +235,690 @@
       color: var(--gold-dim);
       font-family: 'Barlow Condensed', sans-serif;
       font-weight: 600;
-      letter-spacing: 0.05em;
-      padding: 0.1rem 0.2rem;
-      transition: color 0.2s ease;
+      padding: 0;
       line-height: 1;
+      transition: color 0.2s ease;
     }
-    .fs-btn:hover { color: var(--gold); }
-    .fs-btn.active { color: var(--gold); }
-    .fs-btn:nth-child(1) { font-size: 0.65rem; }
-    .fs-btn:nth-child(3) { font-size: 0.8rem; }
-    .fs-btn:nth-child(5) { font-size: 0.95rem; }
-    .fs-sep {
-      color: var(--gold-dim);
-      font-size: 0.6rem;
-      opacity: 0.4;
-    }
+    .fs-btn:hover, .fs-btn.active { color: var(--gold); }
+    .fs-btn:nth-child(1) { font-size: 0.6rem; }
+    .fs-btn:nth-child(3) { font-size: 0.75rem; }
+    .fs-btn:nth-child(5) { font-size: 0.9rem; }
+    .fs-sep { color: var(--gold-dim); font-size: 0.6rem; opacity: 0.4; line-height: 1; }
 
-    html, body {
-      height: 100%;
-      background: var(--dark);
-      color: var(--white);
-      font-family: 'Barlow', sans-serif;
-      overflow-x: hidden;
-    }
-
-    /* ── STAR FIELD ── */
-    .stars {
+    /* ── CORNER BRACKETS ── */
+    .corner {
       position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 0;
+      width: 14px;
+      height: 14px;
+      z-index: 99;
     }
-    .stars canvas { display: block; width: 100%; height: 100%; }
+    .corner--tl { top: 70px;  left: 12px;  border-top: 1px solid rgba(186,153,83,0.18); border-left: 1px solid rgba(186,153,83,0.18); }
+    .corner--tr { top: 70px;  right: 12px; border-top: 1px solid rgba(186,153,83,0.18); border-right: 1px solid rgba(186,153,83,0.18); }
+    .corner--bl { bottom: 12px; left: 12px; border-bottom: 1px solid rgba(186,153,83,0.18); border-left: 1px solid rgba(186,153,83,0.18); }
+    .corner--br { bottom: 12px; right: 12px; border-bottom: 1px solid rgba(186,153,83,0.18); border-right: 1px solid rgba(186,153,83,0.18); }
 
-    /* ── NEBULA GLOW ── */
-    .nebula {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 0;
-      background:
-        radial-gradient(ellipse 80% 50% at 20% 60%, rgba(74,168,200,0.06) 0%, transparent 70%),
-        radial-gradient(ellipse 60% 40% at 80% 30%, rgba(232,160,32,0.07) 0%, transparent 70%),
-        radial-gradient(ellipse 100% 80% at 50% 100%, rgba(13,18,25,0.9) 0%, transparent 60%);
-    }
-
-    /* ── LAYOUT ── */
-    .page {
-      position: relative;
-      z-index: 1;
-      min-height: 100vh;
+    /* ── HERO ── */
+    .hero {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 3rem 1.5rem;
-    }
-
-    /* ── LOGO MARK ── */
-    .logo-wrap {
-      margin-bottom: 2.5rem;
-      opacity: 0;
-      animation: fadeUp 0.8s ease forwards;
-    }
-    .logo-mark {
-      width: 90px;
-      height: 90px;
-      margin: 0 auto;
+      padding: 100px 1.5rem 4rem;
       position: relative;
+      overflow: hidden;
     }
-    .logo-mark svg { width: 100%; height: 100%; }
+    .hero-bg { display: none; }
 
-    /* ── WORDMARK ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    .hero-logo {
+      width: 270px; height: 270px;
+      margin-bottom: 0.25rem;
+      opacity: 0;
+      animation: fadeUp 0.9s 0.1s ease forwards;
+    }
     .wordmark {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(5rem, 18vw, 11rem);
-      letter-spacing: 0.12em;
-      line-height: 0.85;
-      color: var(--white);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: clamp(3rem, 10vw, 5.5rem);
+      font-weight: 500;
+      color: var(--gold);
+      letter-spacing: 0.45em;
+      text-indent: 0.45em;
       text-align: center;
-      position: relative;
       opacity: 0;
-      animation: fadeUp 0.8s 0.15s ease forwards;
+      animation: fadeUp 0.9s 0.35s ease forwards;
     }
-    .wordmark span {
-      display: block;
-      background: linear-gradient(135deg, var(--gold) 0%, #F5C84A 50%, var(--gold-dim) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      filter: drop-shadow(0 0 30px rgba(232,160,32,0.35));
-    }
-
-    /* ── ACRONYM LINE ── */
     .acronym {
       font-family: 'Barlow Condensed', sans-serif;
-      font-size: calc(clamp(0.6rem, 1.8vw, 0.8rem) * var(--fs));
-      font-weight: 600;
-      letter-spacing: 0.35em;
+      font-size: calc(clamp(0.6rem, 1.8vw, 0.78rem) * var(--fs));
+      font-weight: 400;
+      letter-spacing: 0.28em;
       text-transform: uppercase;
-      color: var(--gold-dim);
+      color: var(--gold-text);
       text-align: center;
-      margin-top: 0.6rem;
-      margin-bottom: 2.5rem;
       opacity: 0;
-      animation: fadeUp 0.8s 0.25s ease forwards;
+      animation: fadeUp 0.9s 0.55s ease forwards;
     }
-
-    /* ── DIVIDER ── */
-    .divider {
-      width: 160px;
+    .hero-divider {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      margin: 2.25rem auto 1.5rem;
+      opacity: 0;
+      animation: fadeUp 0.9s 0.7s ease forwards;
+    }
+    .hero-divider::before, .hero-divider::after {
+      content: '';
+      width: 60px;
       height: 1px;
-      background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
-      margin: 0 auto 2.5rem;
-      opacity: 0;
-      animation: fadeUp 0.8s 0.35s ease forwards;
+      background: var(--gold-dim);
     }
-
-    /* ── TAGLINE ── */
+    .hero-divider-diamond {
+      width: 5px; height: 5px;
+      background: var(--gold-dim);
+      transform: rotate(45deg);
+      flex-shrink: 0;
+    }
     .tagline {
-      font-size: calc(clamp(1rem, 3vw, 1.25rem) * var(--fs));
+      font-size: calc(clamp(0.95rem, 2.5vw, 1.1rem) * var(--fs));
       font-weight: 300;
-      color: var(--off-white);
+      color: var(--body-text);
       text-align: center;
-      max-width: 520px;
-      line-height: 1.65;
-      margin-bottom: 1rem;
+      max-width: 500px;
+      line-height: 1.75;
+      margin-bottom: 0.5rem;
       opacity: 0;
-      animation: fadeUp 0.8s 0.45s ease forwards;
+      animation: fadeUp 0.9s 0.85s ease forwards;
     }
-    .tagline em {
-      font-style: italic;
-      color: var(--white);
-    }
+    .tagline em { font-style: italic; color: var(--bright-text); }
 
     /* ── PILLS ── */
     .pills {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.6rem;
+      gap: 0.5rem;
       justify-content: center;
-      margin-bottom: 3rem;
+      margin: 1.75rem 0 0;
       opacity: 0;
-      animation: fadeUp 0.8s 0.55s ease forwards;
+      animation: fadeUp 0.9s 1s ease forwards;
     }
     .pill {
       font-family: 'Barlow Condensed', sans-serif;
+      font-size: calc(0.65rem * var(--fs));
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--teal);
+      border: 1px solid var(--teal-dim);
+      background: var(--teal-faint);
+      padding: 0.35rem 0.9rem;
+      clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+    }
+
+    /* ── CONTENT PAGE ── */
+    .content-page {
+      min-height: 100vh;
+      padding-top: 60px;
+      display: flex;
+      flex-direction: column;
+    }
+    .content-header {
+      padding: 7rem 2rem 1.5rem;
+      text-align: center;
+    }
+    .content-title {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: calc(clamp(1.5rem, 4vw, 2.2rem) * var(--fs));
+      font-weight: 500;
+      color: var(--gold);
+      letter-spacing: 0.25em;
+      text-indent: 0.25em;
+    }
+    .content-title-rule {
+      width: 80px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+      margin: 0.6rem auto 0;
+    }
+    .content-body {
+      flex: 1;
+      padding: 2rem 2rem 5rem;
+    }
+    .content-inner {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+    .content-inner p {
+      font-size: calc(0.95rem * var(--fs));
+      font-weight: 300;
+      line-height: 2;
+      color: var(--body-text);
+      margin-bottom: 1.4rem;
+    }
+    .content-inner p:last-child { margin-bottom: 0; }
+    .content-inner em { font-style: italic; color: var(--bright-text); }
+    .content-inner strong { color: var(--bright-text); font-weight: 400; }
+    .content-inner ul {
+      margin: 0.25rem 0 1.4rem 0;
+      padding: 0;
+      list-style: none;
+    }
+    .content-inner ul li {
+      font-size: calc(0.95rem * var(--fs));
+      font-weight: 300;
+      line-height: 1.75;
+      color: var(--body-text);
+      padding-left: 1.25rem;
+      position: relative;
+      margin-bottom: 0.2rem;
+    }
+    .content-inner ul li::before {
+      content: '·';
+      position: absolute;
+      left: 0;
+      color: var(--gold-dim);
+    }
+    .content-inner ul li strong { color: var(--bright-text); font-weight: 500; }
+
+    /* ── OPS CARDS ── */
+    /* ── OPS PAGE ── */
+    .ops-section {
+      max-width: 860px;
+      margin: 0 auto 2.5rem;
+    }
+    .ops-section:last-child { margin-bottom: 0; }
+    .ops-section-title {
+      font-family: 'Barlow Condensed', sans-serif;
       font-size: calc(0.7rem * var(--fs));
       font-weight: 600;
-      letter-spacing: 0.2em;
+      letter-spacing: 0.3em;
       text-transform: uppercase;
-      padding: 0.4rem 1rem;
-      border: 1px solid var(--accent-dim);
-      color: var(--accent);
-      border-radius: 2px;
-      background: rgba(74,168,200,0.05);
-    }
-
-    /* ── ABOUT EXPANDER ── */
-    .about-wrap {
-      width: 100%;
-      max-width: 560px;
-      margin-bottom: 2.5rem;
-      opacity: 0;
-      animation: fadeUp 0.8s 0.62s ease forwards;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .about-toggle {
-      background: none;
-      border: none;
-      font-family: 'Barlow', sans-serif;
-      font-size: calc(0.88rem * var(--fs));
-      font-weight: 500;
-      letter-spacing: 0.08em;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.45rem;
-      padding: 0;
-      margin: 0 auto;
-      filter: drop-shadow(0 0 6px rgba(74,168,200,0.4));
-      transition: filter 0.2s ease;
-    }
-    .about-toggle:hover {
-      filter: drop-shadow(0 0 10px rgba(74,168,200,0.65));
-    }
-    .about-toggle .label-about { color: var(--gold); }
-    .about-toggle .label-helios {
       color: var(--gold);
-      filter: drop-shadow(0 0 4px rgba(232,160,32,0.5));
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--gold-faint);
     }
-    .about-toggle .chevron {
-      transition: transform 0.3s ease;
-      width: 12px;
-      height: 12px;
-      color: var(--accent);
-    }
-    .about-toggle.open .chevron {
-      transform: rotate(180deg);
-    }
-    .about-body {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.45s ease;
-      background: none;
-    }
-    .about-body.open {
-      max-height: 700px;
-    }
-    .about-inner {
-      padding: 1.25rem 0 0.5rem;
-      text-align: left;
-    }
-    .about-inner p {
-      font-size: calc(0.88rem * var(--fs));
+    .ops-section p {
+      font-size: calc(0.95rem * var(--fs));
       font-weight: 300;
-      line-height: 1.7;
-      color: var(--off-white);
-      margin-bottom: 1rem;
+      line-height: 2;
+      color: var(--body-text);
+      margin-bottom: 0.75rem;
     }
-    .about-inner p:last-child { margin-bottom: 0; }
-    .about-inner strong {
-      color: var(--white);
-      font-weight: 500;
+    .ops-section p:last-child { margin-bottom: 0; }
+    .ops-section em { font-style: italic; color: var(--bright-text); }
+    .ops-section ul {
+      margin: 0.25rem 0 0.75rem 0;
+      padding: 0;
+      list-style: none;
     }
-    .about-inner .ops {
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
-      margin: 0.75rem 0 1rem;
-    }
-    .about-inner .op-line {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: calc(0.78rem * var(--fs));
-      letter-spacing: 0.1em;
-      color: var(--accent);
-    }
-    .about-inner .op-line strong {
-      color: var(--gold);
-      font-weight: 600;
-    }
-    .about-divider {
-      width: 100%;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--accent-dim), transparent);
-      margin: 1rem 0;
-    }
-
-    /* ── CTA BUTTON ── */
-    .cta-wrap {
-      opacity: 0;
-      animation: fadeUp 0.8s 0.65s ease forwards;
-    }
-    .cta {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.75rem;
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 1rem;
-      font-weight: 700;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      text-decoration: none;
-      color: var(--dark);
-      background: linear-gradient(135deg, var(--gold) 0%, #F5C84A 100%);
-      padding: 1rem 2.5rem;
-      border-radius: 2px;
+    .ops-section ul li {
+      font-size: calc(0.95rem * var(--fs));
+      font-weight: 300;
+      line-height: 1.75;
+      color: var(--body-text);
+      padding-left: 1.25rem;
       position: relative;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      box-shadow: 0 0 30px rgba(232,160,32,0.3), 0 4px 20px rgba(0,0,0,0.5);
+      margin-bottom: 0.2rem;
     }
-    .cta:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 0 50px rgba(232,160,32,0.5), 0 8px 30px rgba(0,0,0,0.6);
-    }
-    .cta:active { transform: translateY(0); }
-    .cta svg { width: 20px; height: 20px; flex-shrink: 0; }
-
-    /* ── FOOTER NOTE ── */
-    .footnote {
-      margin-top: 3rem;
-      font-size: calc(0.72rem * var(--fs));
-      letter-spacing: 0.12em;
+    .ops-section ul li::before {
+      content: '·';
+      position: absolute;
+      left: 0;
       color: var(--gold-dim);
-      text-transform: uppercase;
+    }
+    .ops-section ul li strong { color: var(--bright-text); font-weight: 500; }
+
+    /* Active hours grid */
+    .ops-hours-grid {
+      display: grid;
+      grid-template-columns: repeat(4, auto);
+      gap: 0.4rem 2.5rem;
+      margin-top: 0.75rem;
+      width: fit-content;
+    }
+    .ops-hours-row {
+      display: contents;
+    }
+    .ops-hours-zone {
       font-family: 'Barlow Condensed', sans-serif;
-      opacity: 0;
-      animation: fadeUp 0.8s 0.8s ease forwards;
+      font-size: calc(0.7rem * var(--fs));
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      white-space: nowrap;
+    }
+    .ops-hours-window {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: calc(0.95rem * var(--fs));
+      font-weight: 500;
+      color: var(--bright-text);
+      white-space: nowrap;
     }
 
-    /* ── SCAN LINE OVERLAY ── */
-    .scanlines {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 2;
-      background: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 2px,
-        rgba(0,0,0,0.03) 2px,
-        rgba(0,0,0,0.03) 4px
-      );
-    }
-
-    /* ── CORNER MARKS ── */
-    .corner {
-      position: fixed;
-      width: 40px;
-      height: 40px;
-      opacity: 0.25;
-      z-index: 1;
-    }
-    .corner--tl { top: 1.5rem; left: 1.5rem; border-top: 1px solid var(--gold); border-left: 1px solid var(--gold); }
-    .corner--tr { top: 1.5rem; right: 1.5rem; border-top: 1px solid var(--gold); border-right: 1px solid var(--gold); }
-    .corner--bl { bottom: 1.5rem; left: 1.5rem; border-bottom: 1px solid var(--gold); border-left: 1px solid var(--gold); }
-    .corner--br { bottom: 1.5rem; right: 1.5rem; border-bottom: 1px solid var(--gold); border-right: 1px solid var(--gold); }
-
-    /* ── ANIMATIONS ── */
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(18px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes rotateSlow {
-      from { transform: rotate(0deg); }
-      to   { transform: rotate(360deg); }
-    }
-    @keyframes rotateBurst {
-      0%   { animation-duration: 12s; }
-      0%   { transform: rotate(0deg); }
-      30%  { transform: rotate(120deg); }
-      100% { transform: rotate(360deg); }
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 0.7; }
-      50% { opacity: 1; }
-    }
-    @keyframes wordmarkBurst {
-      0%   { filter: drop-shadow(0 0 30px rgba(232,160,32,0.35)); }
-      40%  { filter: drop-shadow(0 0 80px rgba(232,160,32,0.95)) drop-shadow(0 0 40px rgba(245,200,74,0.7)); }
-      100% { filter: drop-shadow(0 0 30px rgba(232,160,32,0.35)); }
-    }
-
-    .logo-ring {
-      animation: rotateSlow 12s linear infinite;
-      transform-origin: center;
-    }
-    .logo-ring.burst {
-      animation: rotateBurst 2.5s cubic-bezier(0.2, 0.8, 0.4, 1) forwards, rotateSlow 12s linear 2.5s infinite;
-      transform-origin: center;
-    }
-    .logo-core {
-      animation: pulse 3s ease-in-out infinite;
-    }
-    .wordmark.burst span {
-      animation: wordmarkBurst 2.2s ease-out forwards;
-    }
-
-    .page {
-      position: relative;
-      z-index: 1;
-      min-height: 100vh;
+    /* ── JOIN SECTION ── */
+    .join {
+      border-top: 1px solid var(--gold-faint);
+      padding: 5rem 1.5rem;
       display: flex;
       flex-direction: column;
+      align-items: center;
+      text-align: center;
+      background: var(--bg);
+    }
+    .join-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .join-title-rule { width: 50px; height: 1px; background: var(--gold-dim); }
+    .join-title {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: calc(clamp(1.1rem, 3vw, 1.5rem) * var(--fs));
+      font-weight: 700;
+      color: var(--bright-text);
+      letter-spacing: 0.1em;
+      white-space: nowrap;
+    }
+    .join p {
+      font-size: calc(0.92rem * var(--fs));
+      font-weight: 300;
+      line-height: 1.8;
+      color: var(--body-text);
+      max-width: 460px;
+      margin-bottom: 1.75rem;
+    }
+    .join p em { font-style: italic; color: var(--bright-text); }
+    .diamond { width: 8px; height: 8px; background: var(--teal-dim); transform: rotate(45deg); margin: 0 auto 1.75rem; }
+
+    /* ── FOOTER ── */
+    .page-view.is-home {
+      padding-bottom: 60px;
+    }
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      padding-bottom: 60px;
+    }
+    #page-about > footer, #page-operations > footer {
+      margin-top: auto;
+    }
+    footer {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 5;
+      border-top: 1px solid var(--gold-faint);
+      padding: 1.25rem 2rem;
+      display: flex;
       align-items: center;
       justify-content: center;
-      padding: 3rem 1.5rem;
+      background: var(--bg);
+    }
+    .footer-left { display: none; }
+    .footer-right {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(186,153,83,0.35);
+      text-align: center;
+      width: 100%;
+    }
+
+    /* ── FLASH ANIMATION ── */
+    @keyframes flashBtn {
+      0%, 100% { background: var(--gold); }
+      50% { background: #f0f0c0; box-shadow: 0 0 24px rgba(240,240,180,0.6), 0 0 48px rgba(186,153,83,0.4); }
+    }
+    .join-btn-flash { animation: flashBtn 0.5s ease 4; }
+
+    /* ── MOBILE ── */
+    @media (max-width: 700px) {
+      .nav-tab { display: none; }
+      .nav-join { display: none; }
+      .hamburger { display: flex; }
+      nav { padding: 0 1.25rem; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Stars -->
-  <div class="stars"><canvas id="starCanvas"></canvas></div>
-  <div class="nebula"></div>
-  <div class="scanlines"></div>
+  <!-- Nav -->
+  <nav id="main-nav" class="home-mode">
+    <div class="nav-left" id="nav-home-btn">
+      <img src="favicon.png" alt="HELIOS"/>
+      <span class="nav-name">HELIOS</span>
+    </div>
+    <div class="nav-right">
+      <div class="fs-selector">
+        <button class="fs-btn active" data-scale="1">A</button>
+        <span class="fs-sep">|</span>
+        <button class="fs-btn" data-scale="1.15">A</button>
+        <span class="fs-sep">|</span>
+        <button class="fs-btn" data-scale="1.3">A</button>
+      </div>
+      <button class="nav-tab nav-tab-outline" data-tab="home">Home</button>
+      <button class="nav-tab nav-tab-outline" data-tab="about">About</button>
+      <button class="nav-tab nav-tab-outline" data-tab="operations">Operations</button>
+      <a href="#" class="btn-angled nav-join" id="nav-join-btn">Join the Crew</a>
+      <button class="hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
 
-  <!-- Corner marks -->
+  <!-- Mobile menu -->
+  <div class="mobile-menu" id="mobile-menu">
+    <button class="mobile-menu-tab" data-tab="home">Home</button>
+    <button class="mobile-menu-tab" data-tab="about">About</button>
+    <button class="mobile-menu-tab" data-tab="operations">Operations</button>
+    <button class="mobile-menu-tab join-tab" data-tab="join" style="margin-top:0.25rem;padding-top:0.85rem;border-top:1px solid rgba(186,153,83,0.14);">Join the Crew</button>
+  </div>
+
+  <!-- Corner brackets -->
   <div class="corner corner--tl"></div>
   <div class="corner corner--tr"></div>
   <div class="corner corner--bl"></div>
   <div class="corner corner--br"></div>
 
-  <!-- Font size selector -->
-  <div class="fs-selector">
-    <button class="fs-btn active" data-scale="1">A</button>
-    <span class="fs-sep">|</span>
-    <button class="fs-btn" data-scale="1.15">A</button>
-    <span class="fs-sep">|</span>
-    <button class="fs-btn" data-scale="1.3">A</button>
+  <!-- HOME PAGE -->
+  <div class="page-view is-home" id="page-home">
+    <section class="hero">
+      <div class="hero-logo">
+        <img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDI4LjAuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPgo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IgoJIHZpZXdCb3g9IjAgMCAxMDgwIDEwODAiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDEwODAgMTA4MDsiIHhtbDpzcGFjZT0icHJlc2VydmUiPgo8c3R5bGUgdHlwZT0idGV4dC9jc3MiPgoJLnN0MHtmaWxsOiNCQTk5NTM7fQoJLnN0MXtmaWxsOnVybCgjU1ZHSURfMV8pO30KCS5zdDJ7ZmlsbDp1cmwoI1NWR0lEXzAwMDAwMDg1OTM0NDQyODc4NTQ4NzE5MjkwMDAwMDA1NDQ1NzY0ODYwMTM4MTY3OTM5Xyk7fQoJLnN0M3tmaWxsOnVybCgjU1ZHSURfMDAwMDAwNDYzMTgwMjk2MTI2Nzg1NDI0MTAwMDAwMDQwNjAxNTczODg2MjYxMDAxNDJfKTt9Cgkuc3Q0e2ZpbGw6dXJsKCNTVkdJRF8wMDAwMDE2MDg5MDQxNjc2ODExMzc3MTY2MDAwMDAwOTc0MjA0MzY2NzA5ODA5NDAwNV8pO30KCS5zdDV7ZmlsbDp1cmwoI1NWR0lEXzAwMDAwMDgyMzQ2Mzg1ODU1OTc3NDQ4MTMwMDAwMDEzNTQ5MDY0NzUzMjIwMjk3NjI4Xyk7fQoJLnN0NntmaWxsOnVybCgjU1ZHSURfMDAwMDAwODg4MzI5MDY2OTE3NjY2MzMzOTAwMDAwMDIxMTU5OTUzOTc1MTMyMzk0MjVfKTt9Cgkuc3Q3e2ZpbGw6dXJsKCNTVkdJRF8wMDAwMDEzMDYyMzAwNjUxMjUzNDEwNjE0MDAwMDAxNzU5NTM0NjAwNjI5NDcxNzEwN18pO30KCS5zdDh7ZmlsbDp1cmwoI1NWR0lEXzAwMDAwMDE5NjU4NjQxNjQ3Mjg0Mzk5OTMwMDAwMDA2MzQ3NTQzNTIyMjAwNTEzOTU1Xyk7fQoJLnN0OXtmaWxsOiM2MjhCQUU7fQo8L3N0eWxlPgo8Zz4KCTxnPgoJCTxnPgoJCQk8Zz4KCQkJCTxnPgoJCQkJCTxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik03NDIuMzgsNDkyLjMzYy01LjEzLTIyLjY2LTEzLjk4LTQzLjktMjUuODktNjMuMDVsLTMzLjM5LDQyLjU3bC0xMS4yOC0yNC43N2wtMjQuOTYsMzEuNTYKCQkJCQkJYzQuOTQsOC43NCw4LjgsMTguMTUsMTEuNDUsMjguMDdsMzkuOCw0LjQ3bC05LjQ0LTI1LjczTDc0Mi4zOCw0OTIuMzN6IE00ODcuNTksMzkwLjA2bDYuODYtNTMuNzEKCQkJCQkJYy0yMy42Myw1LjM2LTQ1LjczLDE0Ljc1LTY1LjUzLDI3LjQybDQzLjA2LDMyLjgybC0yNC43OSwxMS42OWwzMS40OSwyNC43N2M5LjMyLTUuNSwxOS40NC05Ljc3LDMwLjE0LTEyLjY0bDQuNDctMzkuNzgKCQkJCQkJTDQ4Ny41OSwzOTAuMDZ6IE00MjIuNzIsNTcwLjU0bC0zOS45LTQuOTRsOS4zNywyNS41NWwtNTMuNzEtNi44OGM1LjEzLDIyLjY2LDEzLjk4LDQzLjksMjUuODksNjMuMDVsMzMuMzktNDIuNTdsMTEuMzUsMjQuOTQKCQkJCQkJbDI1LjItMzEuMTRDNDI5LjM0LDU4OS44Myw0MjUuNDEsNTgwLjQ0LDQyMi43Miw1NzAuNTR6IE02NTEuOTIsNzEyLjgybC00My4wNC0zMi44bDI0LjYxLTExLjYzbC0zMS44OS0yNC41MQoJCQkJCQljLTguOTksNS4yMi0xOC42OSw5LjMyLTI4Ljk0LDEyLjExbC00Ljk0LDM5LjlsMjUuNTUtOS4zNmwtNi44OCw1My42OUM2MTAuMDMsNzM0Ljg4LDYzMi4xMyw3MjUuNDksNjUxLjkyLDcxMi44MnoKCQkJCQkJIE02ODguNjcsNTkxLjE2bDkuMzctMjUuNTVsLTM5LjksNC45NGMtMi43MSw5LjktNi42MiwxOS4yNy0xMS41OSwyOGwyNS4yLDMxLjE2bDExLjM1LTI0Ljk0bDMzLjM5LDQyLjU3CgkJCQkJCWMxMS45LTE5LjE1LDIwLjc1LTQwLjM5LDI1Ljg5LTYzLjA1TDY4OC42Nyw1OTEuMTZ6IE01MTMuMzEsNjk1Ljk3bC00LjQ5LTM5LjhjLTEwLjQ3LTIuNzktMjAuNC02Ljk1LTI5LjU3LTEyLjI5CgkJCQkJCWwtMzEuODksMjQuNTFsMjQuNjEsMTEuNjNsLTQzLjA2LDMyLjhjMTkuNzksMTIuNjcsNDEuODksMjIuMDYsNjUuNTMsMjcuNDJsLTYuODYtNTMuNjlMNTEzLjMxLDY5NS45N3ogTTQwOS4wNCw0NDcuMDgKCQkJCQkJbC0xMS4yOCwyNC43N2wtMzMuNDEtNDIuNTdjLTExLjg5LDE5LjE1LTIwLjc0LDQwLjM5LTI1Ljg3LDYzLjAzbDUzLjcxLTYuODZsLTkuNDQsMjUuNzNsMzkuOC00LjQ3CgkJCQkJCWMyLjY0LTkuOTEsNi41MS0xOS4zNCwxMS40My0yOC4wOEw0MDkuMDQsNDQ3LjA4eiBNNjUxLjk0LDM2My43OWMtMTkuNzktMTIuNjctNDEuODktMjIuMDgtNjUuNTMtMjcuNDRsNi44Niw1My43MQoJCQkJCQlsLTI1LjU1LTkuMzdsNC45NCwzOS45YzEwLjQ2LDIuODYsMjAuMzcsNy4wNywyOS41LDEyLjQ2bDMxLjUxLTI0Ljc3bC0yNC43OS0xMS42OUw2NTEuOTQsMzYzLjc5eiIvPgoJCQkJPC9nPgoJCQk8L2c+CgkJPC9nPgoJPC9nPgoJPGc+CgkJPGc+CgkJCTxnPgoJCQkJPGc+CgkJCQkJPHBhdGggY2xhc3M9InN0MCIgZD0iTTUzMi42MiwyMjUuMjlsLTIuMjgsOTIuNjhjMCwwLTEwLjQ3LDEuMjgtMTIuMzYsMTEuOWMtMS44OCwxMC42MS01LjU2LDQyLjcyLTUuNTYsNDIuNzJsLTE1LjQxLDUuNjUKCQkJCQkJbDEwLjQ0LTgxLjY3YzAsMCw4LjU2LTUuOTksMTIuODQtMjYuMTlDNTI0LjU3LDI1MC4xNyw1MzIuNjIsMjI1LjI5LDUzMi42MiwyMjUuMjl6Ii8+CgkJCQkJPHBhdGggY2xhc3M9InN0MCIgZD0iTTU0OC4yMywyMjUuMjlsMi4yOCw5Mi42OGMwLDAsMTAuNDcsMS4yOCwxMi4zNiwxMS45czUuNTYsNDIuNzIsNS41Niw0Mi43MmwxNS40MSw1LjY1bC0xMC40NC04MS42NwoJCQkJCQljMCwwLTguNTYtNS45OS0xMi44NC0yNi4xOUM1NTYuMjgsMjUwLjE3LDU0OC4yMywyMjUuMjksNTQ4LjIzLDIyNS4yOXoiLz4KCQkJCQk8cGF0aCBjbGFzcz0ic3QwIiBkPSJNNTI3LjE0LDMyNy45YzguOTEtMS42NCwxNy42My0xLjcxLDI2LjE0LDBsMTAuMDQsODEuMTVjLTE1LjEtNi41NC0zMC4yMS02LjU0LTQ1LjMxLDBMNTI3LjE0LDMyNy45eiIvPgoJCQkJCTxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik01MzAuMDUsNDEzLjI1YzcuNDYtMS4xMywxNC41LTEuMjcsMjAuOTcsMGwtNS40OCwyOS42MmgtMTAuNTlMNTMwLjA1LDQxMy4yNXoiLz4KCQkJCTwvZz4KCQkJCTxsaW5lYXJHcmFkaWVudCBpZD0iU1ZHSURfMV8iIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIiB4MT0iNTQwLjQyODIiIHkxPSIzMTcuNjg0OSIgeDI9IjU0MC40MjgyIiB5Mj0iMjY3LjE3ODgiPgoJCQkJCTxzdG9wICBvZmZzZXQ9IjAiIHN0eWxlPSJzdG9wLWNvbG9yOiM2MzhFOUYiLz4KCQkJCQk8c3RvcCAgb2Zmc2V0PSIxIiBzdHlsZT0ic3RvcC1jb2xvcjojOEFCMEM0Ii8+CgkJCQk8L2xpbmVhckdyYWRpZW50PgoJCQkJPHBvbHlnb24gY2xhc3M9InN0MSIgcG9pbnRzPSI1NDQuMzEsMzE3LjY4IDUzNi41NSwzMTcuNjggNTM3LjkzLDI2Ny4xOCA1NDIuODksMjY3LjE4IAkJCQkiLz4KCQkJPC9nPgoJCQk8Zz4KCQkJCTxnPgoJCQkJCTxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik01MzIuNjIsODUxLjMxbC0yLjI4LTkyLjY4YzAsMC0xMC40Ny0xLjI4LTEyLjM2LTExLjljLTEuODgtMTAuNjEtNS41Ni00Mi43Mi01LjU2LTQyLjcybC0xNS40MS01LjY1CgkJCQkJCWwxMC40NCw4MS42N2MwLDAsOC41Niw1Ljk5LDEyLjg0LDI2LjE5QzUyNC41Nyw4MjYuNDMsNTMyLjYyLDg1MS4zMSw1MzIuNjIsODUxLjMxeiIvPgoJCQkJCTxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik01NDguMjMsODUxLjMxbDIuMjgtOTIuNjhjMCwwLDEwLjQ3LTEuMjgsMTIuMzYtMTEuOWMxLjg4LTEwLjYxLDUuNTYtNDIuNzIsNS41Ni00Mi43MmwxNS40MS01LjY1CgkJCQkJCWwtMTAuNDQsODEuNjdjMCwwLTguNTYsNS45OS0xMi44NCwyNi4xOUM1NTYuMjgsODI2LjQzLDU0OC4yMyw4NTEuMzEsNTQ4LjIzLDg1MS4zMXoiLz4KCQkJCQk8cGF0aCBjbGFzcz0ic3QwIiBkPSJNNTI3LjE0LDc0OC43YzguOTEsMS42NCwxNy42MywxLjcxLDI2LjE0LDBsMTAuMDQtODEuMTVjLTE1LjEsNi41NC0zMC4yMSw2LjU0LTQ1LjMxLDBMNTI3LjE0LDc0OC43eiIvPgoJCQkJCTxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik01MzAuMDUsNjYzLjM1YzcuNDYsMS4xMywxNC41LDEuMjcsMjAuOTcsMGwtNS40OC0yOS42MmgtMTAuNTlMNTMwLjA1LDY2My4zNXoiLz4KCQkJCTwvZz4KCQkJCQoJCQkJCTxsaW5lYXJHcmFkaWVudCBpZD0iU1ZHSURfMDAwMDAwMzU1MjA1MDc0OTMwNDA5NTQ1MjAwMDAwMDg3MjY3NjQ0OTQwNTM5MzI0NjVfIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjU0MC40MjgyIiB5MT0iODA5LjQyMjEiIHgyPSI1NDAuNDI4MiIgeTI9Ijc1OC45MTYiPgoJCQkJCTxzdG9wICBvZmZzZXQ9IjAiIHN0eWxlPSJzdG9wLWNvbG9yOiM4QUIwQzQiLz4KCQkJCQk8c3RvcCAgb2Zmc2V0PSIxIiBzdHlsZT0ic3RvcC1jb2xvcjojNjM4RTlGIi8+CgkJCQk8L2xpbmVhckdyYWRpZW50PgoJCQkJPHBvbHlnb24gc3R5bGU9ImZpbGw6dXJsKCNTVkdJRF8wMDAwMDAzNTUyMDUwNzQ5MzA0MDk1NDUyMDAwMDAwODcyNjc2NDQ5NDA1MzkzMjQ2NV8pOyIgcG9pbnRzPSI1NDQuMzEsNzU4LjkyIDUzNi41NSw3NTguOTIgCgkJCQkJNTM3LjkzLDgwOS40MiA1NDIuODksODA5LjQyIAkJCQkiLz4KCQkJPC9nPgoJCTwvZz4KCQk8Zz4KCQkJPGc+CgkJCQk8Zz4KCQkJCQk8cGF0aCBjbGFzcz0ic3QwIiBkPSJNODUzLjQ0LDUzMC40OWwtOTIuNjgtMi4yOGMwLDAtMS4yOC0xMC40Ny0xMS45LTEyLjM2Yy0xMC42MS0xLjg4LTQyLjcyLTUuNTYtNDIuNzItNS41NmwtNS42NS0xNS40MQoJCQkJCQlsODEuNjcsMTAuNDRjMCwwLDUuOTksOC41NiwyNi4xOSwxMi44NEM4MjguNTYsNTIyLjQ1LDg1My40NCw1MzAuNDksODUzLjQ0LDUzMC40OXoiLz4KCQkJCQk8cGF0aCBjbGFzcz0ic3QwIiBkPSJNODUzLjQ0LDU0Ni4xMWwtOTIuNjgsMi4yOGMwLDAtMS4yOCwxMC40Ny0xMS45LDEyLjM2Yy0xMC42MSwxLjg4LTQyLjcyLDUuNTYtNDIuNzIsNS41NmwtNS42NSwxNS40MQoJCQkJCQlsODEuNjctMTAuNDRjMCwwLDUuOTktOC41NiwyNi4xOS0xMi44NEM4MjguNTYsNTU0LjE1LDg1My40NCw1NDYuMTEsODUzLjQ0LDU0Ni4xMXoiLz4KCQkJCQk8cGF0aCBjbGFzcz0ic3QwIiBkPSJNNzUwLjgzLDUyNS4wMmMxLjY0LDguOTEsMS43MSwxNy42MywwLDI2LjE0bC04MS4xNSwxMC4wNGM2LjU0LTE1LjEsNi41NC0zMC4yMSwwLTQ1LjMxTDc1MC44Myw1MjUuMDJ6IgoJCQkJCQkvPgoJCQkJCTxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik02NjUuNDgsNTI3LjkzYzEuMTMsNy40NiwxLjI3LDE0LjUsMCwyMC45N2wtMjkuNjItNS40OHYtMTAuNTlMNjY1LjQ4LDUyNy45M3oiLz4KCQkJCTwvZz4KCQkJCQoJCQkJCTxsaW5lYXJHcmFkaWVudCBpZD0iU1ZHSURfMDAwMDAwMDg4NTk4NTY0MzQ0MTIxMjgyNzAwMDAwMDQ4ODk0OTg4MjA2MzExMTU5MDRfIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjU0Mi41MDYiIHkxPSIzMjMuNTU4IiB4Mj0iNTQyLjUwNiIgeTI9IjI3My4wNTE5IiBncmFkaWVudFRyYW5zZm9ybT0ibWF0cml4KDYuMTIzMjM0ZS0xNyAxIC0xIDYuMTIzMjM0ZS0xNyAxMDg0LjYwMTcgLTQuMjA1NikiPgoJCQkJCTxzdG9wICBvZmZzZXQ9IjAiIHN0eWxlPSJzdG9wLWNvbG9yOiM2MzhFOUYiLz4KCQkJCQk8c3RvcCAgb2Zmc2V0PSIxIiBzdHlsZT0ic3RvcC1jb2xvcjojOEFCMEM0Ii8+CgkJCQk8L2xpbmVhckdyYWRpZW50PgoJCQkJPHBvbHlnb24gc3R5bGU9ImZpbGw6dXJsKCNTVkdJRF8wMDAwMDAwODg1OTg1NjQzNDQxMjEyODI3MDAwMDAwNDg4OTQ5ODgyMDYzMTExNTkwNF8pOyIgcG9pbnRzPSI3NjEuMDQsNTQyLjE4IDc2MS4wNCw1MzQuNDIgCgkJCQkJODExLjU1LDUzNS44IDgxMS41NSw1NDAuNzYgCQkJCSIvPgoJCQk8L2c+CgkJCTxnPgoJCQkJPGc+CgkJCQkJPHBhdGggY2xhc3M9InN0MCIgZD0iTTIyNy40Miw1MzAuNDlsOTIuNjgtMi4yOGMwLDAsMS4yOC0xMC40NywxMS45LTEyLjM2YzEwLjYxLTEuODgsNDIuNzItNS41Niw0Mi43Mi01LjU2bDUuNjUtMTUuNDEKCQkJCQkJbC04MS42NywxMC40NGMwLDAtNS45OSw4LjU2LTI2LjE5LDEyLjg0QzI1Mi4zLDUyMi40NSwyMjcuNDIsNTMwLjQ5LDIyNy40Miw1MzAuNDl6Ii8+CgkJCQkJPHBhdGggY2xhc3M9InN0MCIgZD0iTTIyNy40Miw1NDYuMTFsOTIuNjgsMi4yOGMwLDAsMS4yOCwxMC40NywxMS45LDEyLjM2czQyLjcyLDUuNTYsNDIuNzIsNS41Nmw1LjY1LDE1LjQxbC04MS42Ny0xMC40NAoJCQkJCQljMCwwLTUuOTktOC41Ni0yNi4xOS0xMi44NEMyNTIuMyw1NTQuMTUsMjI3LjQyLDU0Ni4xMSwyMjcuNDIsNTQ2LjExeiIvPgoJCQkJCTxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik0zMzAuMDMsNTI1LjAyYy0xLjY0LDguOTEtMS43MSwxNy42MywwLDI2LjE0bDgxLjE1LDEwLjA0Yy02LjU0LTE1LjEtNi41NC0zMC4yMSwwLTQ1LjMxTDMzMC4wMyw1MjUuMDJ6IgoJCQkJCQkvPgoJCQkJCTxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik00MTUuMzcsNTI3LjkzYy0xLjEzLDcuNDYtMS4yNywxNC41LDAsMjAuOTdsMjkuNjItNS40OHYtMTAuNTlMNDE1LjM3LDUyNy45M3oiLz4KCQkJCTwvZz4KCQkJCQoJCQkJCTxsaW5lYXJHcmFkaWVudCBpZD0iU1ZHSURfMDAwMDAwNzQ0MDk3NTU1MDY1OTYzNDMwOTAwMDAwMDcwMjEzMTY1NzgxNjk0ODcyNDlfIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjU0Mi41MDYiIHkxPSI4MTUuMjk1MiIgeDI9IjU0Mi41MDYiIHkyPSI3NjQuNzg5MSIgZ3JhZGllbnRUcmFuc2Zvcm09Im1hdHJpeCg2LjEyMzIzNGUtMTcgMSAtMSA2LjEyMzIzNGUtMTcgMTA4NC42MDE3IC00LjIwNTYpIj4KCQkJCQk8c3RvcCAgb2Zmc2V0PSIwIiBzdHlsZT0ic3RvcC1jb2xvcjojOEFCMEM0Ii8+CgkJCQkJPHN0b3AgIG9mZnNldD0iMSIgc3R5bGU9InN0b3AtY29sb3I6IzYzOEU5RiIvPgoJCQkJPC9saW5lYXJHcmFkaWVudD4KCQkJCTxwb2x5Z29uIHN0eWxlPSJmaWxsOnVybCgjU1ZHSURfMDAwMDAwNzQ0MDk3NTU1MDY1OTYzNDMwOTAwMDAwMDcwMjEzMTY1NzgxNjk0ODcyNDlfKTsiIHBvaW50cz0iMzE5LjgxLDU0Mi4xOCAzMTkuODEsNTM0LjQyIAoJCQkJCTI2OS4zMSw1MzUuOCAyNjkuMzEsNTQwLjc2IAkJCQkiLz4KCQkJPC9nPgoJCTwvZz4KCQk8Zz4KCQkJPGc+CgkJCQk8Zz4KCQkJCQk8cGF0aCBjbGFzcz0ic3QwIiBkPSJNNzY4LjgsNzUyLjUxbC02NC4zOS02Ni43YzAsMCw2LjQ0LTguMzYsMC4yLTE3LjE1Yy02LjI0LTguNzktMjYuNTEtMzMuOTUtMjYuNTEtMzMuOTVsNi44LTE0Ljk0CgkJCQkJCWw1MC44Miw2NC43N2MwLDAtMS43NCwxMC4zLDkuNjQsMjcuNTNDNzU2LjczLDcyOS4zMSw3NjguOCw3NTIuNTEsNzY4LjgsNzUyLjUxeiIvPgoJCQkJCTxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik03NTcuODMsNzYzLjYzbC02Ny42LTYzLjQ1YzAsMC04LjI3LDYuNTYtMTcuMTUsMC40NGMtOC44OC02LjExLTM0LjMyLTI2LjAzLTM0LjMyLTI2LjAzbC0xNC44NCw3LjAxCgkJCQkJCWw2NS40OCw0OS45YzAsMCwxMC4yOC0xLjg5LDI3LjY3LDkuMjVDNzM0LjQ3LDc1MS44OSw3NTcuODMsNzYzLjYzLDc1Ny44Myw3NjMuNjN6Ii8+CgkJCQkJPHBhdGggY2xhc3M9InN0MCIgZD0iTTY5OS41OCw2NzYuNTZjLTUuMDksNy40OS0xMS4xNiwxMy43Ni0xOC4zNSwxOC42MWwtNjQuODQtNDkuODNjMTUuMjYtNi4xNiwyNS44Ny0xNi45MiwzMS44MS0zMi4yNwoJCQkJCQlMNjk5LjU4LDY3Ni41NnoiLz4KCQkJCQk8cGF0aCBjbGFzcz0ic3QwIiBkPSJNNjM2Ljc2LDYxOC43MWMtNC40Myw2LjExLTkuMjgsMTEuMjEtMTQuNzMsMTQuOTNsLTE3LjI0LTI0LjdsNy40NC03LjU0TDYzNi43Niw2MTguNzF6Ii8+CgkJCQk8L2c+CgkJCQkKCQkJCQk8bGluZWFyR3JhZGllbnQgaWQ9IlNWR0lEXzAwMDAwMTc4ODk5OTk4MzM1NDEzOTM1MzQwMDAwMDAyMDc2NTgwNTgyNjQ0NTE2NDg2XyIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiIHgxPSI1NDUuODQzNiIgeTE9IjMyMy43NDU3IiB4Mj0iNTQ1Ljg0MzYiIHkyPSIyNzMuMjM5NiIgZ3JhZGllbnRUcmFuc2Zvcm09Im1hdHJpeCgtMC43MDIxIDAuNzEyMSAtMC43MTIxIC0wLjcwMjEgMTMxMS4yOTI4IDUzMS44MTk2KSI+CgkJCQkJPHN0b3AgIG9mZnNldD0iMCIgc3R5bGU9InN0b3AtY29sb3I6IzYzOEU5RiIvPgoJCQkJCTxzdG9wICBvZmZzZXQ9IjEiIHN0eWxlPSJzdG9wLWNvbG9yOiM4QUIwQzQiLz4KCQkJCTwvbGluZWFyR3JhZGllbnQ+CgkJCQk8cG9seWdvbiBzdHlsZT0iZmlsbDp1cmwoI1NWR0lEXzAwMDAwMTc4ODk5OTk4MzM1NDEzOTM1MzQwMDAwMDAyMDc2NTgwNTgyNjQ0NTE2NDg2Xyk7IiBwb2ludHM9IjY5NC44LDY5NS45NiA3MDAuMjUsNjkwLjQzIAoJCQkJCTczNS4yNCw3MjYuODggNzMxLjc2LDczMC40MSAJCQkJIi8+CgkJCTwvZz4KCQkJPGc+CgkJCQk8Zz4KCQkJCQk8cGF0aCBjbGFzcz0ic3QwIiBkPSJNMzIzLjAyLDMxMi45OGw2Ny42LDYzLjQ1YzAsMCw4LjI3LTYuNTYsMTcuMTUtMC40NGM4Ljg4LDYuMTEsMzQuMzIsMjYuMDMsMzQuMzIsMjYuMDNsMTQuODQtNy4wMQoJCQkJCQlsLTY1LjQ4LTQ5LjljMCwwLTEwLjI4LDEuODktMjcuNjctOS4yNUMzNDYuMzksMzI0LjcyLDMyMy4wMiwzMTIuOTgsMzIzLjAyLDMxMi45OHoiLz4KCQkJCQk8cGF0aCBjbGFzcz0ic3QwIiBkPSJNMzEyLjA2LDMyNC4wOWw2NC4zOSw2Ni43YzAsMC02LjQ0LDguMzYtMC4yLDE3LjE1YzYuMjQsOC43OSwyNi41MSwzMy45NSwyNi41MSwzMy45NWwtNi44LDE0Ljk0CgkJCQkJCWwtNTAuODItNjQuNzdjMCwwLDEuNzQtMTAuMy05LjY0LTI3LjUzUzMxMi4wNiwzMjQuMDksMzEyLjA2LDMyNC4wOXoiLz4KCQkJCQk8cGF0aCBjbGFzcz0ic3QwIiBkPSJNMzk5Ljk0LDM4MS4xMmMtNy40Miw1LjItMTMuNiwxMS4zNS0xOC4zNSwxOC42MWw1MC43Myw2NC4xM2M1Ljk1LTE1LjM1LDE2LjU1LTI2LjExLDMxLjgxLTMyLjI3CgkJCQkJCUwzOTkuOTQsMzgxLjEyeiIvPgoJCQkJCTxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik00NTguNjcsNDQzLjExYy02LjA1LDQuNTItMTEuMDgsOS40NC0xNC43MywxNC45M2wyNC45NCwxNi44OWw3LjQ0LTcuNTRMNDU4LjY3LDQ0My4xMXoiLz4KCQkJCTwvZz4KCQkJCQoJCQkJCTxsaW5lYXJHcmFkaWVudCBpZD0iU1ZHSURfMDAwMDAxMDU0MDA4MDU5MjMwNTYyNTIzNzAwMDAwMDgyNzk4Nzk3NzY4NDUwODI3NzBfIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjU0NS44NDM2IiB5MT0iODE1LjQ4MjgiIHgyPSI1NDUuODQzNiIgeTI9Ijc2NC45NzY3IiBncmFkaWVudFRyYW5zZm9ybT0ibWF0cml4KC0wLjcwMjEgMC43MTIxIC0wLjcxMjEgLTAuNzAyMSAxMzExLjI5MjggNTMxLjgxOTYpIj4KCQkJCQk8c3RvcCAgb2Zmc2V0PSIwIiBzdHlsZT0ic3RvcC1jb2xvcjojOEFCMEM0Ii8+CgkJCQkJPHN0b3AgIG9mZnNldD0iMSIgc3R5bGU9InN0b3AtY29sb3I6IzYzOEU5RiIvPgoJCQkJPC9saW5lYXJHcmFkaWVudD4KCQkJCTxwb2x5Z29uIHN0eWxlPSJmaWxsOnVybCgjU1ZHSURfMDAwMDAxMDU0MDA4MDU5MjMwNTYyNTIzNzAwMDAwMDgyNzk4Nzk3NzY4NDUwODI3NzBfKTsiIHBvaW50cz0iMzgwLjYxLDM4Ni4xNyAzODYuMDYsMzgwLjY0IAoJCQkJCTM0OS4xMiwzNDYuMTYgMzQ1LjY0LDM0OS43IAkJCQkiLz4KCQkJPC9nPgoJCTwvZz4KCQk8Zz4KCQkJPGc+CgkJCQk8Zz4KCQkJCQk8cGF0aCBjbGFzcz0ic3QwIiBkPSJNMzEyLjA2LDc1Mi41MWw2NC4zOS02Ni43YzAsMC02LjQ0LTguMzYtMC4yLTE3LjE1YzYuMjQtOC43OSwyNi41MS0zMy45NSwyNi41MS0zMy45NWwtNi44LTE0Ljk0CgkJCQkJCWwtNTAuODIsNjQuNzdjMCwwLDEuNzQsMTAuMy05LjY0LDI3LjUzQzMyNC4xMyw3MjkuMzEsMzEyLjA2LDc1Mi41MSwzMTIuMDYsNzUyLjUxeiIvPgoJCQkJCTxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik0zMjMuMDIsNzYzLjYzbDY3LjYtNjMuNDVjMCwwLDguMjcsNi41NiwxNy4xNSwwLjQ0YzguODgtNi4xMSwzNC4zMi0yNi4wMywzNC4zMi0yNi4wM2wxNC44NCw3LjAxCgkJCQkJCWwtNjUuNDgsNDkuOWMwLDAtMTAuMjgtMS44OS0yNy42Nyw5LjI1QzM0Ni4zOSw3NTEuODksMzIzLjAyLDc2My42MywzMjMuMDIsNzYzLjYzeiIvPgoJCQkJCTxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik0zODEuMjgsNjc2LjU2YzUuMDksNy40OSwxMS4xNiwxMy43NiwxOC4zNSwxOC42MWw2NC44NC00OS44M2MtMTUuMjYtNi4xNi0yNS44Ny0xNi45Mi0zMS44MS0zMi4yNwoJCQkJCQlMMzgxLjI4LDY3Ni41NnoiLz4KCQkJCQk8cGF0aCBjbGFzcz0ic3QwIiBkPSJNNDQ0LjEsNjE4LjcxYzQuNDMsNi4xMSw5LjI4LDExLjIxLDE0LjczLDE0LjkzbDE3LjI0LTI0LjdsLTcuNDQtNy41NEw0NDQuMSw2MTguNzF6Ii8+CgkJCQk8L2c+CgkJCQkKCQkJCQk8bGluZWFyR3JhZGllbnQgaWQ9IlNWR0lEXzAwMDAwMTU2NTg1NDc5ODMxNzI2ODEyMTUwMDAwMDE3OTc3MTExODU3NzA0MTIwNDgyXyIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiIHgxPSI1NDAuMjYxMiIgeTE9IjMxOC4wODQxIiB4Mj0iNTQwLjI2MTIiIHkyPSIyNjcuNTc4IiBncmFkaWVudFRyYW5zZm9ybT0ibWF0cml4KDAuNzAyMSAwLjcxMjEgMC43MTIxIC0wLjcwMjEgLTIyMi40ODU2IDUzMS44MTk2KSI+CgkJCQkJPHN0b3AgIG9mZnNldD0iMCIgc3R5bGU9InN0b3AtY29sb3I6IzYzOEU5RiIvPgoJCQkJCTxzdG9wICBvZmZzZXQ9IjEiIHN0eWxlPSJzdG9wLWNvbG9yOiM4QUIwQzQiLz4KCQkJCTwvbGluZWFyR3JhZGllbnQ+CgkJCQk8cG9seWdvbiBzdHlsZT0iZmlsbDp1cmwoI1NWR0lEXzAwMDAwMTU2NTg1NDc5ODMxNzI2ODEyMTUwMDAwMDE3OTc3MTExODU3NzA0MTIwNDgyXyk7IiBwb2ludHM9IjM4Ni4wNiw2OTUuOTYgMzgwLjYxLDY5MC40MyAKCQkJCQkzNDUuNjIsNzI2Ljg4IDM0OS4xLDczMC40MSAJCQkJIi8+CgkJCTwvZz4KCQkJPGc+CgkJCQk8Zz4KCQkJCQk8cGF0aCBjbGFzcz0ic3QwIiBkPSJNNzU3LjgzLDMxMi45OGwtNjcuNiw2My40NWMwLDAtOC4yNy02LjU2LTE3LjE1LTAuNDRjLTguODgsNi4xMS0zNC4zMiwyNi4wMy0zNC4zMiwyNi4wM0w2MjMuOTIsMzk1CgkJCQkJCWw2NS40OC00OS45YzAsMCwxMC4yOCwxLjg5LDI3LjY3LTkuMjVDNzM0LjQ3LDMyNC43Miw3NTcuODMsMzEyLjk4LDc1Ny44MywzMTIuOTh6Ii8+CgkJCQkJPHBhdGggY2xhc3M9InN0MCIgZD0iTTc2OC44LDMyNC4wOWwtNjQuMzksNjYuN2MwLDAsNi40NCw4LjM2LDAuMiwxNy4xNWMtNi4yNCw4Ljc5LTI2LjUxLDMzLjk1LTI2LjUxLDMzLjk1bDYuOCwxNC45NAoJCQkJCQlsNTAuODItNjQuNzdjMCwwLTEuNzQtMTAuMyw5LjY0LTI3LjUzQzc1Ni43MywzNDcuMjksNzY4LjgsMzI0LjA5LDc2OC44LDMyNC4wOXoiLz4KCQkJCQk8cGF0aCBjbGFzcz0ic3QwIiBkPSJNNjgwLjkyLDM4MS4xMmM3LjQyLDUuMiwxMy42LDExLjM1LDE4LjM1LDE4LjYxbC01MC43Myw2NC4xM2MtNS45NS0xNS4zNS0xNi41NS0yNi4xMS0zMS44MS0zMi4yNwoJCQkJCQlMNjgwLjkyLDM4MS4xMnoiLz4KCQkJCQk8cGF0aCBjbGFzcz0ic3QwIiBkPSJNNjIyLjE5LDQ0My4xMWM2LjA1LDQuNTIsMTEuMDgsOS40NCwxNC43MywxNC45M2wtMjQuOTQsMTYuODlsLTcuNDQtNy41NEw2MjIuMTksNDQzLjExeiIvPgoJCQkJPC9nPgoJCQkJCgkJCQkJPGxpbmVhckdyYWRpZW50IGlkPSJTVkdJRF8wMDAwMDAzNTUwMTE4NzQ3MDA5MTM1MzE2MDAwMDAwMzM0NzI5ODQwNjA1MTQxMDU4OF8iIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIiB4MT0iNTQwLjI2MTIiIHkxPSI4MDkuODIxMiIgeDI9IjU0MC4yNjEyIiB5Mj0iNzU5LjMxNTEiIGdyYWRpZW50VHJhbnNmb3JtPSJtYXRyaXgoMC43MDIxIDAuNzEyMSAwLjcxMjEgLTAuNzAyMSAtMjIyLjQ4NTYgNTMxLjgxOTYpIj4KCQkJCQk8c3RvcCAgb2Zmc2V0PSIwIiBzdHlsZT0ic3RvcC1jb2xvcjojOEFCMEM0Ii8+CgkJCQkJPHN0b3AgIG9mZnNldD0iMSIgc3R5bGU9InN0b3AtY29sb3I6IzYzOEU5RiIvPgoJCQkJPC9saW5lYXJHcmFkaWVudD4KCQkJCTxwb2x5Z29uIHN0eWxlPSJmaWxsOnVybCgjU1ZHSURfMDAwMDAwMzU1MDExODc0NzAwOTEzNTMxNjAwMDAwMDMzNDcyOTg0MDYwNTE0MTA1ODhfKTsiIHBvaW50cz0iNzAwLjI1LDM4Ni4xNyA2OTQuOCwzODAuNjQgCgkJCQkJNzMxLjczLDM0Ni4xNiA3MzUuMjIsMzQ5LjcgCQkJCSIvPgoJCQk8L2c+CgkJPC9nPgoJPC9nPgoJPGc+CgkJPGc+CgkJCTxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik01NDAuMjMsOTc5LjExTDE2Ni42MSw3NjEuODlWMzE2LjM4TDU0MC4yMywxMDAuMWwzNzMuNjIsMjE2LjI4djQ0NS41MUw1NDAuMjMsOTc5LjExeiBNMTc0LjQ3LDc1Ny4zNwoJCQkJbDM2NS43NywyMTIuNjVMOTA2LDc1Ny4zN1YzMjAuOTFMNTQwLjIzLDEwOS4xN0wxNzQuNDcsMzIwLjkxVjc1Ny4zN3oiLz4KCQk8L2c+Cgk8L2c+Cgk8cGF0aCBjbGFzcz0ic3Q5IiBkPSJNODQ0LjczLDUxNS42OGw1LjE3LDEuNzZjMC4zMS02LjM1LDAuNDItMTIuNzQsMC4zMy0xOS4xNWMtMC45Ni02Ni4yNi0yMy4yMy0xMjkuODYtNjMuNTQtMTgzLjI4bC0yLjYsNS4yOQoJCWMzOC42NSw1Mi4xLDU5Ljk4LDExMy44MSw2MC45LDE3OC4wNkM4NDUuMDgsNTA0LjE2LDg0NC45OSw1MDkuOTQsODQ0LjczLDUxNS42OHoiLz4KCTxwYXRoIGNsYXNzPSJzdDkiIGQ9Ik03NjYuMTMsMjk4LjE4bDQuMjktMy4wNGMtNS4yLTUuODgtMTAuNjUtMTEuNjMtMTYuMzItMTcuMTljLTQ5LjA4LTQ4LjIxLTExMS43My04MC4yNi0xODAuMi05Mi44OHY1LjMyCgkJYzY3LjA4LDEyLjU1LDEyOC40Myw0NC4wNCwxNzYuNTQsOTEuMjlDNzU1Ljg5LDI4Ny4wNCw3NjEuMTIsMjkyLjU0LDc2Ni4xMywyOTguMTh6Ii8+Cgk8cGF0aCBjbGFzcz0ic3Q5IiBkPSJNODQ0LjM1LDU2Mi4xMWwtNS41OSwxLjEyYy0xMS42Miw1NS40OS0zOS4yMiwxMDYuOTgtODAuNjEsMTQ5LjE5bDIuMzYsNS4wNGMwLjI4LTAuMjYsMC41NC0wLjU0LDAuODItMC44MgoJCUM4MDQuMzEsNjczLjA1LDgzMi43NCw2MTkuNjYsODQ0LjM1LDU2Mi4xMXoiLz4KCTxwYXRoIGNsYXNzPSJzdDkiIGQ9Ik04MjMuNzMsNTA4LjQ3Yy0wLjE5LTU4Ljk4LTE3LjQtMTE2LjgxLTQ5Ljk2LTE2Ny44M2wtMi44OCw1LjIyYzMwLjY5LDQ5LjA3LDQ3LjA2LDEwNC40LDQ3LjU4LDE2MC44MQoJCUw4MjMuNzMsNTA4LjQ3eiIvPgoJPHBhdGggY2xhc3M9InN0OSIgZD0iTTgxMC4xNyw1MDQuNjVjLTEuOS0xNC43MS00Ljk3LTI5LjM0LTkuMjMtNDMuNzhjLTkuNTEtMzIuMzEtMjQuNDctNjIuMzctNDQuMTEtODkuM2wtMi43NCw1LjE1CgkJYzE4LjU1LDI1LjkyLDMyLjczLDU0LjcyLDQxLjg0LDg1LjYyYzQuMDMsMTMuNyw3LDI3LjYsOC44Nyw0MS41OEw4MTAuMTcsNTA0LjY1eiIvPgoJPHBhdGggY2xhc3M9InN0OSIgZD0iTTg1My4zOSw2MDkuMzRjLTE4LjM2LDQ3LjU1LTQ4LjI1LDg4Ljc4LTg2Ljk0LDEyMC44NmwyLjI5LDQuOWMzOS44OC0zMi44LDcwLjY3LTc1LjA2LDg5LjU0LTEyMy44OAoJCWM3LjMzLTE4Ljk5LDEyLjcxLTM4LjQ5LDE2LjEzLTU4LjI2bC01LjU5LDEuNDhDODY1LjQ1LDU3My4wNyw4NjAuMyw1OTEuNDUsODUzLjM5LDYwOS4zNHoiLz4KCTxwYXRoIGNsYXNzPSJzdDkiIGQ9Ik04NTEuNDksMzcwLjk1Yy00Ljc4LTEwLjk4LTEwLjE0LTIxLjY2LTE2LjAyLTMyLjAxbC00LjI0LDMuMTJjNS42NywxMC4wMiwxMC44NCwyMC4zNSwxNS40OCwzMC45OAoJCWMyMS40NSw0OS4xOSwzMC4xMywxMDEuMjksMjUuOTYsMTUyLjIybDUuMSwxLjc1Qzg4Mi4yNiw0NzQuNzgsODczLjQ2LDQyMS4zNiw4NTEuNDksMzcwLjk1eiIvPgoJPHBhdGggY2xhc3M9InN0OSIgZD0iTTc1My41Myw3MDQuMzljNDUuNzgtNTguNjEsNTUuNjEtMTE5LjcyLDU3LjM0LTEzMy44NGwtNS40MSwxLjA4Yy0yLjE1LDE2LjA2LTEyLjM5LDcyLjY1LTU0LjU4LDEyNy42NwoJCUw3NTMuNTMsNzA0LjM5eiIvPgoJPHBhdGggY2xhc3M9InN0OSIgZD0iTTcxOS4yNiwzMjEuODNDNzE5LjI3LDMyMS44Myw3MTkuMjcsMzIxLjgzLDcxOS4yNiwzMjEuODNsNC43OS0yLjYzYzAsMCwwLDAsMCwwCgkJYy05LjQxLTkuNDMtNjkuMDctNjUuOTQtMTYwLjg2LTgybDEuNDcsNS41N0M2NTAuNzQsMjU4LjU5LDcwNy41LDMxMC4zMSw3MTkuMjYsMzIxLjgzeiIvPgoJPHBhdGggY2xhc3M9InN0OSIgZD0iTTU3Mi40NSwyNzIuNDZjNzAuMDYsOC4yMiwxMjAuNCw0NC44NCwxMzQuNDksNTYuMTdsNC45NC0yLjcyYy0xMi4wNy05Ljk1LTY1LjQ4LTUwLjY3LTE0MC44Ni01OC44NwoJCUw1NzIuNDUsMjcyLjQ2eiIvPgoJPHBhdGggY2xhc3M9InN0OSIgZD0iTTMwNi44NSwyOTQuNjZsNS4xOSwyLjZjODcuNjUtNjcuNDgsMTk0Ljc1LTYxLjUyLDIwNS4zMi02MC43NGwwLTAuMDFsMS4zMS01LjEzbDAsMAoJCUM1MTYuNDcsMjMxLjE3LDQwMC4zLDIyMS4zLDMwNi44NSwyOTQuNjZ6Ii8+Cgk8cGF0aCBjbGFzcz0ic3Q5IiBkPSJNMzM1LjE2LDMwOC4wN2wwLjk0LDEuMjZsMy42OCwxLjg1YzcyLjgtNTMuMzMsMTY0Ljk4LTUyLjA3LDE3MS44My01MS45bDAtMC4wMWwxLjM0LTUuMzFsMC0wLjAxCgkJQzUwNy44OSwyNTMuOCw0MTAuNTIsMjUxLjg5LDMzNS4xNiwzMDguMDd6Ii8+Cgk8cGF0aCBjbGFzcz0ic3Q5IiBkPSJNMzc0Ljk0LDMyOC44MWM1Mi00NC44LDEyMC42OC01NS4wOCwxMzMuNDQtNTYuNjRsMS4zOC01LjQzYy00Ljc4LDAuNDctODIuNyw5LjEzLTEzOS44Niw1OS41NEwzNzQuOTQsMzI4LjgxCgkJeiIvPgoJPHBhdGggY2xhc3M9InN0OSIgZD0iTTI5NC4zMywzMTAuMTlsLTIuMzctNC44MmMtNi43OSw1LjQ0LTUyLjA1LDQzLjA2LTgxLjM1LDEwMC44Nmw0LjY3LDIuMzcKCQlDMjQzLjA2LDM1My44LDI4NS40MiwzMTcuNDYsMjk0LjMzLDMxMC4xOXoiLz4KCTxwYXRoIGNsYXNzPSJzdDkiIGQ9Ik0yMzMuODcsNTE0LjcxbDUuNDctMS4yOGMxMi4wMS04Mi43LDcwLjg4LTE0NC4xMSw3OS43NC0xNTIuOTRsLTIuMzYtNC43OWwtMC4xMS0wLjEyCgkJQzMxNS45LDM1Ni4yNiwyNDYuMzQsNDIyLjc5LDIzMy44Nyw1MTQuNzF6Ii8+Cgk8cGF0aCBjbGFzcz0ic3Q5IiBkPSJNMjc2LjAyLDUwNC44N2M2LjA2LTY1LjE1LDQxLjI4LTExNSw1MS4xOS0xMjcuODZsLTIuNTctNS4yMWMtNy40NSw5LjMzLTQ3Ljk0LDYzLjA0LTUzLjk5LDEzNC4zMwoJCUwyNzYuMDIsNTA0Ljg3eiIvPgoJPHBhdGggY2xhc3M9InN0OSIgZD0iTTMzMC4yMSw2OTkuMjFjLTQxLjI1LTQ2LjUyLTUxLjYtMTEyLjI2LTUzLjQtMTI2LjM5bC01LjQ3LTEuNjNjMC44NCw3LjY5LDEwLjAzLDgyLjAyLDU2LjI0LDEzMi45NAoJCUwzMzAuMjEsNjk5LjIxeiIvPgoJPHBhdGggY2xhc3M9InN0OSIgZD0iTTMwNS4xLDc0Ni4zNWwyLjc3LTUuMmMtNDguMDItNzAtNDUuNDctMTU1LjQyLTQ0LjQzLTE3Mi4zbC01LjE1LTEuNTMKCQlDMjU3LjI5LDU4MS43NywyNTMuMzQsNjcyLjg1LDMwNS4xLDc0Ni4zNXoiLz4KCTxwYXRoIGNsYXNzPSJzdDkiIGQ9Ik0zMzAuMjMsNzczLjIzbC00LjE0LDMuMjFjMC43MywwLjkzLDczLjMxLDkyLjg3LDE4OC40NiwxMTIuNzZsLTAuMjctNS4zNgoJCUM0MDEuODYsODYzLjksMzMwLjk0LDc3NC4xNSwzMzAuMjMsNzczLjIzeiIvPgoJPHBhdGggY2xhc3M9InN0OSIgZD0iTTIzOS4yMiw2NDcuNTdjLTkuMjctNDMuNjEtNy4yOS03Ny42Ny02LjM3LTg3Ljg0bC01LjExLTEuNTJjLTAuODksOS4xMi0zLjM2LDQ0LjU1LDYuMzIsOTAuMjQKCQljNy4zNiwzNC43MSwyMy4wMSw4MC41OCw1Ni4wNywxMjZsMi43NS01LjE1QzI2MS40LDcyNS4zNSwyNDYuMzYsNjgxLjE1LDIzOS4yMiw2NDcuNTd6Ii8+Cgk8cGF0aCBjbGFzcz0ic3Q5IiBkPSJNMzM5Ljc5LDgyOC45NWwzLjQ3LTMuOTJjLTE1LjgyLTEzLjk5LTI5LjM2LTI4LjU0LTQwLjk4LTQzLjIzbC00Ljk0LDIuMTkKCQlDMzA5LjMyLDc5OS4yNywzMjMuMzQsODE0LjQsMzM5Ljc5LDgyOC45NXoiLz4KCTxwYXRoIGNsYXNzPSJzdDkiIGQ9Ik01MDUuOTUsNzk4LjYyYy02Ni4wMy05LjU5LTExNS42OS00NC40MS0xMjUuMzUtNTEuNTlsLTUuNTYsMi40N2M2Ljk1LDUuMjgsNjEuMDcsNDQuODQsMTMyLjMyLDU0LjU5CgkJTDUwNS45NSw3OTguNjJ6Ii8+Cgk8cGF0aCBjbGFzcz0ic3Q5IiBkPSJNMzY4LjQ4LDc1Mi40MWwtNS4xNywyLjI5YzguMSw3Ljc4LDY1LjE3LDYwLjA5LDE1MS44MSw3OS42NmwtMS40Ny01LjcyCgkJQzQyOS4zNSw4MDguODYsMzc1LjUsNzU5LjE3LDM2OC40OCw3NTIuNDF6Ii8+Cgk8cGF0aCBjbGFzcz0ic3Q5IiBkPSJNNjU3LjYxLDgzMi40MWMtNTMuOTksMTAuNDYtOTMuNTEsNC44My05My45MSw0Ljc3bC0wLjc3LDUuMThjMC4yMSwwLjAzLDExLjI5LDEuNjIsMjkuNjQsMS42MgoJCWMxNi43OCwwLDM5LjY0LTEuMzMsNjUuODItNi4zOGM1MC41Ny05Ljc3LDEyNC4zNS0zNS44NCwxODguNjQtMTA0LjU1bC0zLjgzLTMuNThDNzc5Ljk1LDc5Ny4wOSw3MDcuMzYsODIyLjc3LDY1Ny42MSw4MzIuNDF6Ii8+Cgk8cGF0aCBjbGFzcz0ic3Q5IiBkPSJNNTcyLjIsODEwLjdsLTAuNzEsNS4xOWMwLjI4LDAuMDQsOC45NCwxLjE1LDIzLjM5LDEuMTVjMzIuNTEsMCw5NC4yOC01LjY0LDE1NS40NC00MS45bC0wLjMyLTAuNTMKCQlsLTQuNjYtMi42M0M2NTkuNCw4MjEuODIsNTczLjA3LDgxMC44Miw1NzIuMiw4MTAuN3oiLz4KCTxwYXRoIGNsYXNzPSJzdDkiIGQ9Ik01NzQuODMsNzk4LjU4bDAuNDIsNS4yMmMwLjYzLTAuMDUsNjMuODItNS42NCwxMzAuNTEtNTMuOTFsLTAuMjktMC40bC00LjU3LTIuNTgKCQlDNjM2LjE0LDc5My4wOSw1NzUuNDUsNzk4LjUzLDU3NC44Myw3OTguNTh6Ii8+Cgk8cG9seWdvbiBjbGFzcz0ic3Q5IiBwb2ludHM9IjcwNC42MSw3NjguNzUgNzA3LjA4LDc3My4zNyA3MjgsNzYyLjE5IDcyMi41OSw3NTkuMTQgCSIvPgoJPHBvbHlnb24gY2xhc3M9InN0OSIgcG9pbnRzPSIzMDYuNzcsNzA1LjkzIDMxOC4xOSw3MjEuNjUgMzE4LjMsNzIxLjU2IDMyMC45Nyw3MTYuNTcgMzExLjAxLDcwMi44NSAJIi8+CjwvZz4KPC9zdmc+Cg==" alt="HELIOS Logo" style="width:100%;height:100%;"/>
+      </div>
+      <h1 class="wordmark" id="wordmark">HELIOS</h1>
+      <p class="acronym">Hyperspace Exploration · Logistics · Interstellar Operations Specialists</p>
+      <div class="hero-divider"><div class="hero-divider-diamond"></div></div>
+      <p class="tagline">
+        A crew that takes pride in <em>getting the job done</em> and enjoying the journey.
+        Combat, industrial, and everything between — <em>no milsim, no drama, just the 'verse.</em>
+      </p>
+      <div class="pills">
+        <span class="pill">Combat</span>
+        <span class="pill">Industrial</span>
+        <span class="pill">Mining</span>
+        <span class="pill">Salvage</span>
+        <span class="pill">Combined Arms</span>
+        <span class="pill">Casual · Mature</span>
+      </div>
+    </section>
+
+    <section class="join" id="join">
+      <div class="join-title-wrap">
+        <div class="join-title-rule"></div>
+        <h2 class="join-title">Join the Crew</h2>
+        <div class="join-title-rule"></div>
+      </div>
+      <p>Whether you fly gunships, run salvage lines, crack rocks, or try your hand at multiple roles — there's a place for you in the formation. <em>Good people above perfect runs, always.</em></p>
+      <div class="diamond"></div>
+      <a href="mee6.xyz/i/kO5lakYWfA" class="btn-angled" id="join-btn">Join on Discord</a>
+    </section>
+
+
   </div>
 
-  <main class="page">
-
-    <!-- Logo -->
-    <div class="logo-wrap">
-      <div class="logo-mark">
-        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- Outer ring -->
-          <circle class="logo-ring" cx="50" cy="50" r="44" stroke="#9B6A14" stroke-width="1" stroke-dasharray="8 4"/>
-          <!-- Mid ring -->
-          <circle cx="50" cy="50" r="34" stroke="#E8A020" stroke-width="0.75" opacity="0.4"/>
-          <!-- Sun core -->
-          <circle class="logo-core" cx="50" cy="50" r="18" fill="none" stroke="#E8A020" stroke-width="1.5"/>
-          <circle cx="50" cy="50" r="10" fill="#E8A020" opacity="0.15"/>
-          <circle cx="50" cy="50" r="5" fill="#F5C84A" opacity="0.9"/>
-          <!-- Cross hairs -->
-          <line x1="50" y1="6" x2="50" y2="26" stroke="#E8A020" stroke-width="1" opacity="0.6"/>
-          <line x1="50" y1="74" x2="50" y2="94" stroke="#E8A020" stroke-width="1" opacity="0.6"/>
-          <line x1="6" y1="50" x2="26" y2="50" stroke="#E8A020" stroke-width="1" opacity="0.6"/>
-          <line x1="74" y1="50" x2="94" y2="50" stroke="#E8A020" stroke-width="1" opacity="0.6"/>
-          <!-- Diagonal ticks -->
-          <line x1="18" y1="18" x2="26" y2="26" stroke="#9B6A14" stroke-width="0.75" opacity="0.5"/>
-          <line x1="74" y1="74" x2="82" y2="82" stroke="#9B6A14" stroke-width="0.75" opacity="0.5"/>
-          <line x1="82" y1="18" x2="74" y2="26" stroke="#9B6A14" stroke-width="0.75" opacity="0.5"/>
-          <line x1="26" y1="74" x2="18" y2="82" stroke="#9B6A14" stroke-width="0.75" opacity="0.5"/>
-        </svg>
+  <!-- ABOUT PAGE -->
+  <div class="page-view" id="page-about">
+    <div class="content-header">
+      <div class="content-title">About Helios</div>
+      <div class="content-title-rule"></div>
+    </div>
+    <div class="content-body">
+      <div class="content-inner">
+        <p>In the sprawl of the 'verse, <strong>HELIOS</strong> operates as a collective of pilots and specialists who value reliability, teamwork, and a good time in equal measure. We're not a militia, not a megacorp — just a crew that takes pride in getting the job done and enjoying the journey. Our name, <em>Hyperspace Exploration, Logistics, and Interstellar Operations Specialists</em>, reflects what we're about: running efficient operations across the 'verse without turning the game into a second shift. We build enough structure to keep missions smooth and organized, but <em>not so much that you're filling out forms to undock.</em></p>
+        <p>HELIOS maintains a dual focus on combat and industrial gameplay, and we enjoy blending both into unified operations:</p>
+        <ul>
+          <li><strong>Combat:</strong> security escorts, fleet engagements, bounty work, and rapid-response support.</li>
+          <li><strong>Industrial:</strong> mining, logistics, cargo, refuel/resupply, and salvage.</li>
+          <li><strong>Combined Arms:</strong> coordinated ops where combat wings clear the field and our industrial crews move in to recover, refine, and profit.</li>
+        </ul>
+        <p>Our goal isn't to be the biggest org — it's to create <em>memorable, social, and genuinely fun experiences.</em> The kind where a routine contract becomes a story because people worked together, adapted on the fly, and made something cool out of it.</p>
+        <p>A few things we stand by:</p>
+        <ul>
+          <li>We do not run official piracy operations.</li>
+          <li>Members are free to pursue their own fun, as long as it doesn't cross into griefing or harassment.</li>
+          <li>Anyone using the HELIOS name to ruin someone else's night won't be wearing the tag for long.</li>
+        </ul>
+        <p>We're looking for people who want to learn, share knowledge, and grow regardless of skill level — people who enjoy the teamwork and social side of the game as much as the gameplay itself. Someone who can shift between "let's run this clean" and "welp, that exploded — moving on" without missing a beat. If you help keep things calm and welcoming, you'll fit right in.</p>
+        <p>Whether you want to fly gunships, run salvage lines, escort convoys, crack rocks, or try your hand at multiple roles — HELIOS is a place to do it with a reliable crew that respects your time. If you're looking for a group that balances structure with freedom, and values good people above perfect runs, there's always room in the formation.</p>
       </div>
     </div>
 
-    <!-- Name -->
-    <div class="wordmark"><span>HELIOS</span></div>
-    <p class="acronym">Hyperspace Exploration · Logistics · Interstellar Operation Specialists</p>
+  </div>
 
-    <div class="divider"></div>
-
-    <!-- Tagline -->
-    <p class="tagline">
-      A crew that takes pride in getting the job done <em>and</em> enjoying the journey.
-      Combat, industrial, and everything between — <em>no milsim, no drama, just the 'verse.</em>
-    </p>
-
-    <!-- Pills -->
-    <div class="pills">
-      <span class="pill">Combat</span>
-      <span class="pill">Industrial</span>
-      <span class="pill">Mining</span>
-      <span class="pill">Salvage</span>
-      <span class="pill">Combined Arms</span>
-      <span class="pill">Casual · Mature</span>
+  <!-- OPERATIONS PAGE -->
+  <div class="page-view" id="page-operations">
+    <div class="content-header">
+      <div class="content-title">Operations</div>
+      <div class="content-title-rule"></div>
     </div>
+    <div class="content-body">
 
-    <!-- About Expander -->
-    <div class="about-wrap">
-      <button class="about-toggle" id="aboutToggle" aria-expanded="false">
-        <span class="label-about">ABOUT</span><span class="label-helios" style="margin-left:0.12em">HELIOS</span>
-        <svg class="chevron" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M2 4.5L7 9.5L12 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-      <div class="about-body" id="aboutBody">
-        <div class="about-inner">
-          <p>In the sprawl of the 'verse, <strong>HELIOS</strong> operates as a collective of pilots and specialists who value reliability, teamwork, and a good time in equal measure. We're not a militia, not a megacorp — just a crew that takes pride in getting the job done and enjoying the journey.</p>
-          <p>We maintain a dual focus on combat and industrial gameplay, blending both into unified operations:</p>
-          <div class="ops">
-            <div class="op-line"><strong>Combat —</strong> security escorts, fleet engagements, bounty work, rapid-response support</div>
-            <div class="op-line"><strong>Industrial —</strong> mining, logistics, cargo, refuel/resupply, and salvage</div>
-            <div class="op-line"><strong>Combined Arms —</strong> combat wings clear the field while industrial crews recover, refine, and profit</div>
+      <div class="ops-section">
+        <div class="ops-section-title">Active Hours</div>
+        <p>HELIOS runs primarily during <em>US evenings and nights</em>, with some members pushing into the early morning hours. Pick-up groups are possible most days of the week, with the highest activity on <em>Thursdays, Fridays, and Saturdays.</em></p>
+        <div class="ops-hours-grid">
+          <div class="ops-hours-row">
+            <span class="ops-hours-zone">PT</span>
+            <span class="ops-hours-window">5:30 PM – 1:00 AM</span>
           </div>
-          <div class="about-divider"></div>
-          <p>Our goal isn't to be the biggest org — it's to create <strong>memorable, social, and genuinely fun experiences</strong>. We build enough structure to keep things organized, but not so much that you're filling out forms to undock.</p>
-          <p>We do not run official piracy operations, and anyone using the HELIOS name to ruin someone else's night won't be wearing the tag for long. Beyond that — come as you are, fly what you fly, and help keep things drama-free.</p>
+          <div class="ops-hours-row">
+            <span class="ops-hours-zone">MT</span>
+            <span class="ops-hours-window">6:30 PM – 2:00 AM</span>
+          </div>
+          <div class="ops-hours-row">
+            <span class="ops-hours-zone">CT</span>
+            <span class="ops-hours-window">7:30 PM – 3:00 AM</span>
+          </div>
+          <div class="ops-hours-row">
+            <span class="ops-hours-zone">ET</span>
+            <span class="ops-hours-window">8:30 PM – 4:00 AM</span>
+          </div>
+          <div class="ops-hours-row">
+            <span class="ops-hours-zone">UTC</span>
+            <span class="ops-hours-window">12:30 AM – 8:00 AM</span>
+          </div>
+          <div class="ops-hours-row">
+            <span class="ops-hours-zone">CET</span>
+            <span class="ops-hours-window">2:30 AM – 10:00 AM</span>
+          </div>
+          <div class="ops-hours-row">
+            <span class="ops-hours-zone">SGT</span>
+            <span class="ops-hours-window">8:30 AM – 4:00 PM</span>
+          </div>
+          <div class="ops-hours-row">
+            <span class="ops-hours-zone">AEST</span>
+            <span class="ops-hours-window">10:30 AM – 6:00 PM</span>
+          </div>
         </div>
+        <p style="margin-top: 0.75rem; font-size: calc(0.8rem * var(--fs)); opacity: 0.6; font-style: italic;">These reflect peak activity windows — members are online at all hours, just less predictably outside this range.</p>
       </div>
+
+      <div class="ops-section">
+        <div class="ops-section-title">Group Structure</div>
+        <p>Our current sweet spot is small, focused groups of <em>2–6 players</em> — tight enough to coordinate well, flexible enough to adapt on the fly. That said, the goal is to grow into something more: multiple squads running simultaneously in different game loops, or larger coordinated ops of 10, 15, 20+ when the content calls for it.</p>
+        <p>Multi-crew ships reward proper crew sizes, and upcoming content like Tactical Strike Groups and large-scale events will push those numbers further. We want to be ready for it.</p>
+      </div>
+
+      <div class="ops-section">
+        <div class="ops-section-title">Scheduled Ops &amp; Pickup Groups</div>
+        <p>We have run planned ops and intend to establish more regular scheduled events in the near future. In the meantime, organic pickup sessions happen regularly — jump in Discord, see who's on, and roll out. No sign-up sheets, no mandatory attendance.</p>
+        <p>When an op is running and the crew is ready, we start on time. We respect the schedules of those who showed up prepared.</p>
+      </div>
+
+      <div class="ops-section">
+        <div class="ops-section-title">What We Do</div>
+        <p>HELIOS has active experience across the full range of current Star Citizen content. A typical week might cover bounty runs, a mining op, a Wikelo grind, and someone pulling the group into a global event at 1 AM. Here's what we actually run:</p>
+        <ul>
+          <li><strong>Combat &amp; Bounty Hunting:</strong> NPC and player bounties, security contracts, FPS missions, and ship-to-ship engagements across Stanton, Pyro, and Nyx</li>
+          <li><strong>Mining:</strong> ship and ROC/FPS ground mining across multiple systems — material quality now feeds directly into crafting, making ore runs more meaningful than ever</li>
+          <li><strong>Salvage:</strong> hull scraping, wreck recovery, and component reclamation — salvage materials are set to integrate into the crafting economy in the near future</li>
+          <li><strong>Cargo &amp; Hauling:</strong> commodity trading, contract hauling, and logistics support for org ops and Wikelo runs</li>
+          <li><strong>Crafting (4.7+):</strong> Star Citizen's first crafting system is live — blueprints earned from missions and Breaker Stations, materials gathered through mining, crafted into FPS weapons and armor with stats tied to material quality. The system expands significantly with each patch</li>
+          <li><strong>QV Breaker Stations &amp; PvPvE Content:</strong> multi-stage instanced missions — fight through hostile resistance inside derelict industrial sites, restore power, and extract valuable minerals. Exactly the kind of content that rewards a coordinated group</li>
+          <li><strong>Wikelo &amp; Trade Economy:</strong> delivering specific materials and items to Wikelo's Emporium locations in exchange for rare ships, weapons, armor, and components — a reward loop that ties multiple game loops together</li>
+          <li><strong>Global Events &amp; Tactical Strike Groups:</strong> recurring large-scale events that reward coordination and player counts — Xenothreat is returning in 4.8, alongside the new Tactical Strike Groups system designed specifically for org-sized fleet operations</li>
+        </ul>
+      </div>
+
+      <div class="ops-section">
+        <div class="ops-section-title">Fleet</div>
+        <p>We field a well-rounded mix of ships across all roles. Highlights include an <em>Idris-P</em> — a player-owned capital ship and one of the largest and most capable vessels in the game, crewed by multiple players and rare even among established orgs. We also field two Perseus gunships, a Reclaimer for dedicated salvage ops, and a solid spread of cargo vessels, fighters, and support ships across the membership.</p>
+        <p>We're not chasing the biggest fleet number — we're building the right mix of ships for the ops we want to run.</p>
+      </div>
+
+      <div class="ops-section">
+        <div class="ops-section-title">Training &amp; New Players</div>
+        <p>We actively share knowledge — tips, mechanics, game loop deep-dives, and hands-on guidance for members who want it. Training is never required, but it's always available. We genuinely enjoy bringing new players into the game and giving them a solid foundation.</p>
+        <p>Whether you have 1,000 hours or just bought your first ship, you'll find people here who are happy to fly with you and show you the ropes — without making you feel like you're behind.</p>
+      </div>
+
     </div>
-
-    <!-- CTA Divider -->
-    <div class="divider" style="margin-bottom: 2.5rem; opacity: 0; animation: fadeUp 0.8s 0.65s ease forwards;"></div>
-
-    <!-- CTA -->
-    <div class="cta-wrap">
-      <a href="https://mee6.xyz/i/kO5lakYWfA" class="cta">
-        <!-- Discord icon -->
-        <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-          <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.015.043.03.056a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/>
-        </svg>
-        Join the Crew
-      </a>
-    </div>
-
-    <p class="footnote">Star Citizen · Open Recruitment · helios-sc.com</p>
-
-  </main>
+  </div>
 
   <script>
-    // Entrance burst — fires once after page loads
-    window.addEventListener('load', () => {
-      setTimeout(() => {
-        const ring = document.querySelector('.logo-ring');
-        const wordmark = document.querySelector('.wordmark');
-        ring.classList.add('burst');
-        wordmark.classList.add('burst');
-        setTimeout(() => wordmark.classList.remove('burst'), 2400);
-      }, 900);
-    });
+    const nav = document.getElementById('main-nav');
+    const navTabs = document.querySelectorAll('.nav-tab');
+    const mobileMenuTabs = document.querySelectorAll('.mobile-menu-tab');
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobile-menu');
 
-    // Mouse parallax on star canvas
-    let mouseX = 0, mouseY = 0;
-    document.addEventListener('mousemove', (e) => {
-      mouseX = (e.clientX / window.innerWidth - 0.5) * 20;
-      mouseY = (e.clientY / window.innerHeight - 0.5) * 20;
-    });
+    const pages = {
+      home: document.getElementById('page-home'),
+      about: document.getElementById('page-about'),
+      operations: document.getElementById('page-operations'),
+    };
+    const pageOrder = ['home', 'about', 'operations'];
+    let currentPage = 'home';
+    let isAnimating = false;
+
+
+
+    // Pre-position pages off-screen so first nav has a proper slide
+    (function() {
+      const el = document.getElementById('local-start');
+      if (!el) return;
+      try {
+        // HELIOS active window: 7 PM – 2 AM ET
+        // Show the visitor's local equivalent of 7 PM ET
+        const now = new Date();
+        const etStart = new Date(now.toLocaleDateString('en-US', { timeZone: 'America/New_York' }) + ' 19:00:00');
+        const etEnd   = new Date(now.toLocaleDateString('en-US', { timeZone: 'America/New_York' }) + ' 02:00:00');
+        etEnd.setDate(etEnd.getDate() + 1);
+
+        const localStart = etStart.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+        const localEnd   = etEnd.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone.replace(/_/g, ' ').split('/').pop();
+
+        el.textContent = localStart + ' – ' + localEnd;
+        const label = el.closest('.ops-hours-item').querySelector('.ops-hours-label');
+        if (label) label.textContent = 'Your Time (' + tz + ')';
+      } catch(e) {
+        el.textContent = 'varies by timezone';
+      }
+    })();
+    pages.about.classList.add('enter-right');
+    pages.operations.classList.add('enter-right');
+
+    function clearClasses(el) {
+      el.classList.remove('visible', 'exit-left', 'exit-right', 'enter-left', 'enter-right');
+    }
+
+    function navigateTo(page) {
+      if (page === currentPage || isAnimating) return;
+
+      if (page === 'join') {
+        const wasAway = currentPage !== 'home';
+        if (wasAway) navigateTo('home');
+        setTimeout(() => {
+          document.getElementById('join').scrollIntoView({ behavior: 'smooth' });
+          setTimeout(() => {
+            const btn = document.getElementById('join-btn');
+            btn.classList.add('join-btn-flash');
+            btn.addEventListener('animationend', () => btn.classList.remove('join-btn-flash'), { once: true });
+          }, 600);
+        }, wasAway ? 520 : 50);
+        closeMobileMenu();
+        return;
+      }
+
+      const fromIdx = pageOrder.indexOf(currentPage);
+      const toIdx = pageOrder.indexOf(page);
+      const goingRight = toIdx > fromIdx;
+
+      const fromEl = pages[currentPage];
+      const toEl = pages[page];
+
+      // Step 1: position the incoming page off-screen (no transition yet)
+      clearClasses(toEl);
+      toEl.style.transition = 'none';
+      toEl.classList.add(goingRight ? 'enter-right' : 'enter-left');
+
+      isAnimating = true;
+
+      // Step 2: one frame to let the browser paint the off-screen position
+      requestAnimationFrame(() => {
+        // Step 3: second frame — re-enable transitions and fire everything
+        requestAnimationFrame(() => {
+          toEl.style.transition = '';
+          clearClasses(fromEl);
+          fromEl.classList.add(goingRight ? 'exit-left' : 'exit-right');
+          clearClasses(toEl);
+          toEl.classList.add('visible');
+          toEl.scrollTop = 0;
+          setTimeout(() => { isAnimating = false; }, 480);
+        });
+      });
+
+      currentPage = page;
+      navTabs.forEach(t => t.classList.toggle('active', t.dataset.tab === page));
+      mobileMenuTabs.forEach(t => t.classList.toggle('active', t.dataset.tab === page));
+      closeMobileMenu();
+    }
+
+    function closeMobileMenu() {
+      mobileMenu.classList.remove('open');
+      hamburger.classList.remove('open');
+    }
+
+    // Init
+    pages.home.classList.add('visible');
+    navTabs.forEach(t => t.classList.toggle('active', t.dataset.tab === 'home'));
+    mobileMenuTabs.forEach(t => t.classList.toggle('active', t.dataset.tab === 'home'));
+
+    navTabs.forEach(tab => tab.addEventListener('click', () => navigateTo(tab.dataset.tab)));
+    mobileMenuTabs.forEach(tab => tab.addEventListener('click', () => navigateTo(tab.dataset.tab)));
+    document.getElementById('nav-home-btn').addEventListener('click', () => navigateTo('home'));
+    document.getElementById('nav-join-btn').addEventListener('click', (e) => { e.preventDefault(); navigateTo('join'); });
+    hamburger.addEventListener('click', () => { hamburger.classList.toggle('open'); mobileMenu.classList.toggle('open'); });
 
     // Font size selector
-    const fsBtns = document.querySelectorAll('.fs-btn');
-    fsBtns.forEach(btn => {
+    document.querySelectorAll('.fs-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        const scale = btn.dataset.scale;
-        document.documentElement.style.setProperty('--fs', scale);
-        fsBtns.forEach(b => b.classList.remove('active'));
+        document.documentElement.style.setProperty('--fs', btn.dataset.scale);
+        document.querySelectorAll('.fs-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
       });
     });
-
-    // About toggle
-    const toggle = document.getElementById('aboutToggle');
-    const body = document.getElementById('aboutBody');
-    toggle.addEventListener('click', () => {
-      const open = body.classList.toggle('open');
-      toggle.classList.toggle('open', open);
-      toggle.setAttribute('aria-expanded', open);
-    });
-
-    // Star field
-    const canvas = document.getElementById('starCanvas');
-    const ctx = canvas.getContext('2d');
-    let stars = [];
-
-    function resize() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-
-    function initStars() {
-      stars = [];
-      const count = Math.floor((canvas.width * canvas.height) / 4000);
-      for (let i = 0; i < count; i++) {
-        stars.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
-          r: Math.random() * 1.2,
-          a: Math.random(),
-          speed: 0.0003 + Math.random() * 0.0005,
-          phase: Math.random() * Math.PI * 2
-        });
-      }
-    }
-
-    function drawStars(t) {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.save();
-      ctx.translate(mouseX, mouseY);
-      for (const s of stars) {
-        const alpha = s.a * (0.5 + 0.5 * Math.sin(t * s.speed * 1000 + s.phase));
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(240,237,230,${alpha})`;
-        ctx.fill();
-      }
-      ctx.restore();
-    }
-
-    let raf;
-    function loop(t) {
-      drawStars(t);
-      raf = requestAnimationFrame(loop);
-    }
-
-    window.addEventListener('resize', () => { resize(); initStars(); });
-    resize();
-    initStars();
-    requestAnimationFrame(loop);
   </script>
 
+  <footer id="site-footer">
+    <div class="footer-left">
+      <img src="favicon.png" alt="HELIOS"/>
+      <span class="footer-name">Helios</span>
+    </div>
+    <span class="footer-right">Star Citizen · Open Recruitment · helios-sc.com</span>
+  </footer>
 </body>
 </html>
