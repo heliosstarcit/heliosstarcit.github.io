@@ -34,6 +34,28 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Barlow:ital,wght@0,300;1,300&family=Barlow+Condensed:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <script>
+    // Hold hero entrance animations until the page is actually visible to the user.
+    // Browsers may prerender or open the page in a background tab, which would
+    // otherwise burn through the animation before anyone sees it.
+    (function () {
+      var d = document, r = d.documentElement;
+      function start() { r.classList.add('anim-ready'); }
+
+      if (d.prerendering) {
+        d.addEventListener('prerenderingchange', start, { once: true });
+      } else if (d.visibilityState === 'hidden') {
+        d.addEventListener('visibilitychange', function onVis() {
+          if (d.visibilityState === 'visible') {
+            d.removeEventListener('visibilitychange', onVis);
+            start();
+          }
+        });
+      } else {
+        start();
+      }
+    })();
+  </script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -305,11 +327,18 @@
       to   { opacity: 1; }
     }
 
+
+    /* Entrance animations — gated so they survive browser prerender/preload */
+    html.anim-ready .hero-logo { opacity: 0; animation: fadeUp 0.9s 0.1s ease forwards; }
+    html.anim-ready .wordmark { opacity: 0; animation: fadeUp 0.9s 0.35s ease forwards; }
+    html.anim-ready .acronym { opacity: 0; animation: fadeUp 0.9s 0.55s ease forwards; }
+    html.anim-ready .hero-divider { opacity: 0; animation: fadeUp 0.9s 0.7s ease forwards; }
+    html.anim-ready .tagline { opacity: 0; animation: fadeUp 0.9s 0.85s ease forwards; }
+    html.anim-ready .pills { opacity: 0; animation: fadeUp 0.9s 1s ease forwards; }
+
     .hero-logo {
       width: 270px; height: 270px;
       margin-bottom: 0.25rem;
-      opacity: 0;
-      animation: fadeUp 0.9s 0.1s ease forwards;
     }
     .wordmark {
       font-family: 'Rajdhani', sans-serif;
@@ -319,8 +348,6 @@
       letter-spacing: 0.45em;
       text-indent: 0.45em;
       text-align: center;
-      opacity: 0;
-      animation: fadeUp 0.9s 0.35s ease forwards;
     }
     .acronym {
       font-family: 'Barlow Condensed', sans-serif;
@@ -330,8 +357,6 @@
       text-transform: uppercase;
       color: var(--gold-text);
       text-align: center;
-      opacity: 0;
-      animation: fadeUp 0.9s 0.55s ease forwards;
     }
     .hero-divider {
       display: flex;
@@ -339,8 +364,6 @@
       justify-content: center;
       gap: 0.75rem;
       margin: 2.25rem auto 1.5rem;
-      opacity: 0;
-      animation: fadeUp 0.9s 0.7s ease forwards;
     }
     .hero-divider::before, .hero-divider::after {
       content: '';
@@ -362,8 +385,6 @@
       max-width: 500px;
       line-height: 1.75;
       margin-bottom: 0.5rem;
-      opacity: 0;
-      animation: fadeUp 0.9s 0.85s ease forwards;
     }
     .tagline em { font-style: italic; color: var(--bright-text); }
 
@@ -374,8 +395,6 @@
       gap: 0.5rem;
       justify-content: center;
       margin: 1.75rem 0 0;
-      opacity: 0;
-      animation: fadeUp 0.9s 1s ease forwards;
     }
     .pill {
       font-family: 'Barlow Condensed', sans-serif;
